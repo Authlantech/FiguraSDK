@@ -22,4 +22,5 @@ Licenses of used libs can be found at locations given below
 * Assimp `include/assimp/LICENSE.txt`
 * GLM `include/glm/copying.txt`
 * stb_image.h `include/stb_image.h`
-* glad  `include/KHR/khrplatform.h`     
+* glad  `include/KHR/khrplatform.h`    
+* GLFW `examples/deps/GLFW/LICENSE.md`
