@@ -23,7 +23,7 @@ void Model::rotate(glm::vec3 v, float angle)
 	rotation =  glm::rotate(glm::mat4(1.f), glm::radians(angle), glm::normalize(v)) * rotation;
 }
 
-void Model::Load(const char* path)
+bool Model::Load(const char* path)
 {
 	std::string fpath = path;
 	std::string folder = fpath.substr(0,fpath.find_last_of('\\'));
@@ -32,7 +32,7 @@ void Model::Load(const char* path)
 	Assimp::Importer importer; 
 	const aiScene* scene = importer.ReadFile(fpath, aiProcess_Triangulate | aiProcess_GenNormals); 			
 
-	if (scene == nullptr) return;
+	if (scene == nullptr) return false;
 
 	//Extracting all texture file names : 
 
@@ -166,6 +166,8 @@ void Model::Load(const char* path)
 		this->add_mesh(mesh);
 	}
 	
+	return true;
+
 }
 
 glm::vec3 Model::get_position()

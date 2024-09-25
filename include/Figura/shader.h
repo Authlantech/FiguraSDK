@@ -12,137 +12,137 @@ namespace fgr {
 
 	static const char* default_vs =
 		"#version 460 core\n"
-
+		"\n"
 		"layout (location = 0) in vec3 _vpos;\n"
 		"layout (location = 2) in vec2 _vtexcoords;\n"
 		"layout (location = 3) in vec3 _vnormal;\n"
-
+		"\n"
 		"out vec2 _ftexcoords;\n"
 		"out vec3 _fnormal;\n"
 		"out vec3 _fragPos;\n"
-
+		"\n"
 		"uniform mat4 modelMatrix;\n"
 		"uniform mat4 viewMatrix;\n"
 		"uniform mat4 projectionMatrix;\n"
 		"uniform mat4 normalMatrix;\n"
-
+		"\n"
 		"void main() {\n"
-		"gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(_vpos,1.0);\n"
-		"_ftexcoords = _vtexcoords;\n"
-		"_fnormal =  mat3(normalMatrix) * _vnormal;\n"
-		"_fragPos = vec3(modelMatrix * vec4(_vpos,1.0));\n"
+		"\tgl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(_vpos,1.0);\n"
+		"\t_ftexcoords = _vtexcoords;\n"
+		"\t_fnormal =  mat3(normalMatrix) * _vnormal;\n"
+		"\t_fragPos = vec3(modelMatrix * vec4(_vpos,1.0));\n"
 		"}\n";
 
 	static const char* default_fs =
 		"#version 460 core\n"
-
+		"\n"
 		// INPUTS : 
-
+		"\n"
 		"in vec2 _ftexcoords;\n"
 		"in vec3 _fnormal;\n"
 		"in vec3 _fragPos;\n"
-
+		"\n"
 		"vec3 normVector = normalize(_fnormal);\n"
-
+		"\n"
 		// Directional Light : 
-
+		"\n"
 		"struct D_LIGHT {\n"
-			"float x,y,z;\n"
-			"float r,g,b;\n"
+			"\tfloat x,y,z;\n"
+			"\tfloat r,g,b;\n"
 		"};\n"
-
+		"\n"
 		"layout (std430, binding = 0) buffer d_lights {\n"
-			"int d_count;\n"		
-			"D_LIGHT d_light[];\n"		
+			"\tint d_count;\n"		
+			"\tD_LIGHT d_light[];\n"		
 		"};\n"
-
+		"\n"
 		//Point Light : 
-
+		"\n"
 		"struct P_LIGHT {\n"
-			"float x,y,z;\n"
-			"float r,g,b;\n"
+			"\tfloat x,y,z;\n"
+			"\tfloat r,g,b;\n"
 		"};\n"
-
+		"\n"
 		"layout (std430, binding = 1) buffer p_lights {\n"
-			"int p_count;\n"
-			"P_LIGHT p_light[];\n"
+			"\tint p_count;\n"
+			"\tP_LIGHT p_light[];\n"
 		"};\n"
-
+		"\n"
 		// Spot Light : 
-
+		"\n"
 		"struct S_LIGHT {\n"
-			"float x,y,z;\n"
-			"float r,g,b;\n"
-			"float dx,dy,dz;\n"
-			"float angle;\n"
+			"\tfloat x,y,z;\n"
+			"\tfloat r,g,b;\n"
+			"\tfloat dx,dy,dz;\n"
+			"\tfloat angle;\n"
 		"};\n"
-
+		"\n"
 		"layout (std430, binding = 2) buffer s_lights {\n"
-			"int s_count;\n"
-			"S_LIGHT s_light[];\n"
+			"\tint s_count;\n"
+			"\tS_LIGHT s_light[];\n"
 		"};\n"
-
+		"\n"
 		//Light Maps : 
 		"uniform sampler2D diffusemap;\n"
 		"uniform int dmloaded;\n"
-
+		"\n"
 		// OUTPUTS : 
-
+		"\n"
 		"out vec4 final_color;\n"
-
+		"\n"
 		// MAIN 
 		"void main() {\n"
-		
+		"\n"
 		"vec3 modelcolor = vec3(0.3, 0.3, 0.3);\n"
 		"if(dmloaded == 1) {\n"
-			"modelcolor = vec3(texture(diffusemap,_ftexcoords));\n"
+			"\tmodelcolor = vec3(texture(diffusemap,_ftexcoords));\n"
 		"}\n"
-		
+		"\n"
 		"vec3 result = vec3(0.0, 0.0, 0.0);\n"
-
+		"\n"
 		//AMBIENT CALCULATIONS : 
-
+		"\n"
 		"vec3 ambientcol = vec3(1.0, 1.0, 1.0);\n"
 		"float ambientsth = 0.03;\n"
 		"result += ambientcol * ambientsth * modelcolor;\n"
-
+		"\n"
 		// DIFFUSE CALCULATIONS : 
 
 		// Directional Light Calculations : 
-
+		"\n"
 		"for(int a = 0;a < d_count;a++) {\n"
-			"vec3 lightvector = normalize(-vec3(d_light[a].x, d_light[a].y, d_light[a].z));\n"
-			"float diffsth = max(dot(normVector,lightvector),0.0);\n"
-			"vec3 diffres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * diffsth * modelcolor;\n"
-			"result += diffres;\n"
+			"\tvec3 lightvector = normalize(-vec3(d_light[a].x, d_light[a].y, d_light[a].z));\n"
+			"\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
+			"\tvec3 diffres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * diffsth * modelcolor;\n"
+			"\tresult += diffres;\n"
 		"}\n"
-
+		"\n"
 		// Point Light Calculations : 
-
+		"\n"
 		"for(int a = 0;a < p_count;a++) {\n"
-			"vec3 lightvector = normalize(vec3(p_light[a].x, p_light[a].y, p_light[a].z) - _fragPos);\n"
-			"float diffsth = max(dot(normVector,lightvector),0.0);\n"
-			"vec3 diffres = vec3(p_light[a].r, p_light[a].g, p_light[a].b) * diffsth * modelcolor;\n"
-			"result += diffres;\n"
+			"\tvec3 lightvector = normalize(vec3(p_light[a].x, p_light[a].y, p_light[a].z) - _fragPos);\n"
+			"\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
+			"\tvec3 diffres = vec3(p_light[a].r, p_light[a].g, p_light[a].b) * diffsth * modelcolor;\n"
+			"\tresult += diffres;\n"
 		"}\n"
-
+		"\n"
 		// Spot Light Calculations : 
-
+		"\n"
 		"for(int a = 0;a < s_count;a++) {\n"
-			"vec3 light_pos = vec3(s_light[a].x,s_light[a].y,s_light[a].z);\n"
-			"vec3 target_dir = normalize(vec3(s_light[a].dx, s_light[a].dy, s_light[a].dz));\n"
-			"vec3 light_dir = normalize(_fragPos - light_pos);\n"
-			"float cos_val = dot(target_dir, light_dir);\n"
-			"if(cos_val > cos(radians(s_light[a].angle))) {\n"
-				"vec3 lightvector = -light_dir;\n"
-				"float diffsth = max(dot(normVector,lightvector),0.0);\n"
-				"vec3 diffres = vec3(s_light[a].r, s_light[a].g, s_light[a].b) * diffsth * modelcolor;\n"
-				"result += diffres;\n"
+			"\tvec3 light_pos = vec3(s_light[a].x,s_light[a].y,s_light[a].z);\n"
+			"\tvec3 target_dir = normalize(vec3(s_light[a].dx, s_light[a].dy, s_light[a].dz));\n"
+			"\tvec3 light_dir = normalize(_fragPos - light_pos);\n"
+			"\tfloat cos_val = dot(target_dir, light_dir);\n"
+			"\tif(cos_val > cos(radians(s_light[a].angle))) {\n"
+				"\t\tvec3 lightvector = -light_dir;\n"
+				"\t\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
+				"\t\tvec3 diffres = vec3(s_light[a].r, s_light[a].g, s_light[a].b) * diffsth * modelcolor;\n"
+				"\t\tresult += diffres;\n"
 			"}\n"
 		"}\n"
-
+		"\n"
 		"final_color = vec4(result,1.0);\n"
-
+		"\n"
 		"}\n";
 
 		// SHADERS FOR NORMAL RENDERING : 

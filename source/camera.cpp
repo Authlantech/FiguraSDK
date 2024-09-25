@@ -3,12 +3,14 @@ using namespace fgr;
 
 void Camera::create_perspective(float fov, float aspect, float zNear, float zFar)
 {
+	this->p_attribs = { fov, aspect, zNear, zFar };
 	projectionMatrix = glm::perspective(glm::radians(fov), aspect, zNear, zFar);
 	viewMatrix = glm::lookAt(position, position + oreintation, glm::vec3(0.f, 1.f, 0.f));
 }
 
 void Camera::create_ortho(float left, float right, float bottom, float top,float near,float far)
 {
+	this->o_attribs = {left, right, bottom, top, near, far};
 	projectionMatrix = glm::ortho(left, right, bottom,top,near,far);
 	viewMatrix = glm::lookAt(position, position + oreintation, glm::vec3(0.f, 1.f, 0.f));
 }
@@ -44,6 +46,16 @@ glm::mat4 Camera::get_viewMatrix()
 glm::mat4 Camera::get_projectionMatrix()
 {
 	return projectionMatrix;
+}
+
+PerspectiveAttribs	Camera::give_perpective_attribs()
+{
+	return p_attribs;
+}
+
+OrthographicAttribs Camera::give_orthographic_attribs()
+{
+	return o_attribs;
 }
 
 void Camera::use(Shader shader)

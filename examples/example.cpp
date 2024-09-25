@@ -29,6 +29,15 @@ void window_resize_callback(GLFWwindow* w, int width, int height)
 	camera.create_perspective(c_attribs.fov, (float)w_attribs.width / (float)w_attribs.height, c_attribs.near, c_attribs.far);
 };
 
+void scroll_callback(GLFWwindow*w, double x_offset, double y_offset)
+{
+	if (c_attribs.fov + y_offset > 90.f) return;
+	if (c_attribs.fov + y_offset < 0.f) return;
+	c_attribs.fov += y_offset;
+	camera.create_perspective(c_attribs.fov, (float)w_attribs.width / (float)w_attribs.height, c_attribs.near, c_attribs.far);
+	printf("FOV : %f\n", c_attribs.fov);
+};
+
 int main()
 {
 	// Init GLFW
@@ -48,8 +57,9 @@ int main()
 
 	glViewport(0, 0, w_attribs.width, w_attribs.height);
 
-	//Window resize callback : 
+	//Window callbacks : 
 	glfwSetWindowSizeCallback(window, &window_resize_callback);
+	glfwSetScrollCallback(window, &scroll_callback);
 
 	//Init Figura : 
 	fgr::InitFigura(); 
@@ -63,7 +73,7 @@ int main()
 
 	//Load a model : 
 	fgr::Model model; 
-	model.Load("..\\assets\\wolf skull\\czaszka_wilka.obj");
+	model.Load("..\\assets\\wolf skull\\wolf_skull.obj");
 	model.set_position({ 0,0,-5 });
 
 	//Window loop 

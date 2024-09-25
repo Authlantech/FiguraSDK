@@ -39,7 +39,7 @@ namespace fgr {
 
 		std::vector<fgr::Mesh> get_meshes();
 
-		void Load(const char* path);
+		bool Load(const char* path);
 		void Draw(Shader shader);
 	};
 

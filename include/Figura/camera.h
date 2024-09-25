@@ -5,6 +5,24 @@
 
 namespace fgr {
 
+	struct PerspectiveAttribs
+	{
+		float fov; 
+		float aspect;
+		float near; 
+		float far; 
+	};
+
+	struct OrthographicAttribs
+	{
+		float left; 
+		float right; 
+		float bottom; 
+		float top; 
+		float near; 
+		float far;
+	};
+
 	class Camera {
 	private:
 		glm::mat4 viewMatrix = glm::mat4(1.f);
@@ -13,9 +31,14 @@ namespace fgr {
 		glm::vec3 position = glm::vec3(0.f, 0.f, 0.f);
 		glm::vec3 oreintation = glm::vec3(0.f, 0.f, -1.f);
 
+		// Attribs : 
+		PerspectiveAttribs p_attribs = { 0 };
+		OrthographicAttribs o_attribs = { 0 };
+
 	public:
 		void create_perspective(float fov, float aspect, float zNear, float zFar);
 		void create_ortho(float left,float right,float bottom,float top,float near,float far);
+
 		void set_position(glm::vec3 pos);
 		void face(glm::vec3 target);
 
@@ -24,6 +47,9 @@ namespace fgr {
 
 		glm::mat4 get_viewMatrix(); 
 		glm::mat4 get_projectionMatrix();
+
+		PerspectiveAttribs give_perpective_attribs(); 
+		OrthographicAttribs give_orthographic_attribs();
 
 		void use(Shader shader);
 	};
