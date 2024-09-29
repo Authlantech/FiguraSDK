@@ -34,6 +34,9 @@ bool Model::Load(const char* path)
 
 	if (scene == nullptr) return false;
 
+
+	printf("\n<MODEL> : %s\n", file_name.c_str());
+
 	//Extracting all texture file names : 
 
 	std::vector<std::string> texture_names; 
@@ -43,6 +46,7 @@ bool Model::Load(const char* path)
 		aiMaterial* m = scene->mMaterials[a];		
 		aiString diffusemapname;		
 		aiString specularmapname;
+		aiString metalnessmapname;
 
 		// Extracting diffuse maps : 
 
@@ -51,6 +55,8 @@ bool Model::Load(const char* path)
 			std::string name = std::string(diffusemapname.C_Str());
 			name = name.substr(name.find_last_of('\\') + 1, name.size());			
 
+			printf("\t<DIFFUSE MAP> : %s\n", name.c_str());
+
 			// Adding file name to list :
 
 			if (std::find(texture_names.begin(), texture_names.end(), name) == texture_names.end())
@@ -58,6 +64,42 @@ bool Model::Load(const char* path)
 				texture_names.push_back(name);
 			}
 		}
+
+		//Extracting sepcular maps : 
+
+		if (m->GetTexture(aiTextureType::aiTextureType_SPECULAR, 0, &specularmapname) == AI_SUCCESS)
+		{
+			std::string name = std::string(specularmapname.C_Str());
+			name = name.substr(name.find_last_of('\\') + 1, name.size());
+
+			printf("\t<SPECULAR MAP> : %s\n", name.c_str());
+
+
+			// Adding file name to list :
+
+			if (std::find(texture_names.begin(), texture_names.end(), name) == texture_names.end())
+			{
+				texture_names.push_back(name);
+			}
+		}
+
+		//Extracting metalness maps : 
+
+		if (m->GetTexture(aiTextureType::aiTextureType_METALNESS, 0, &metalnessmapname) == AI_SUCCESS)
+		{
+			std::string name = std::string(metalnessmapname.C_Str());
+			name = name.substr(name.find_last_of('\\') + 1, name.size());
+
+			printf("\t<METALNESS MAP> : %s\n", name.c_str());
+
+			// Adding file name to list :
+
+			if (std::find(texture_names.begin(), texture_names.end(), name) == texture_names.end())
+			{
+				texture_names.push_back(name);
+			}
+		}
+
 	}
 
 	// Loading all textures : 
@@ -129,8 +171,9 @@ bool Model::Load(const char* path)
 		aiMaterial* material = scene->mMaterials[currentMesh->mMaterialIndex];
 		aiString diffusemapname;		
 		aiString specularmapname;
+		aiString metalnessmapname;
 
-		std::string diffusemapname_, specularmapname_;
+		std::string diffusemapname_, specularmapname_, metalnessmapname_;
 
 		// Extracting diffuse map name if exists 				
 
@@ -150,17 +193,67 @@ bool Model::Load(const char* path)
 
 		}
 
+		// Extracting specular map name if exists 				
+
+		if (material->GetTexture(aiTextureType_SPECULAR, 0, &specularmapname) == AI_SUCCESS) {
+
+			std::string smn(specularmapname.C_Str());
+
+			if (smn.find('\\') != std::string::npos) {
+				smn = smn.substr(smn.find_last_of('\\') + 1, smn.size());
+			}
+
+			else if (smn.find('/') != std::string::npos) {
+				smn = smn.substr(smn.find_last_of('/') + 1, smn.size());
+			}
+
+			specularmapname_ = smn;
+
+		}
+
+		// Extracting metalness map name if exists 				
+
+		if (material->GetTexture(aiTextureType_METALNESS, 0, &metalnessmapname) == AI_SUCCESS) {
+
+			std::string mmn(metalnessmapname.C_Str());
+
+			if (mmn.find('\\') != std::string::npos) {
+				mmn = mmn.substr(mmn.find_last_of('\\') + 1, mmn.size());
+			}
+
+			else if (mmn.find('/') != std::string::npos) {
+				mmn = mmn.substr(mmn.find_last_of('/') + 1, mmn.size());
+			}
+
+			metalnessmapname_ = mmn;
+
+		}
+
 		Texture diffusemap;
+		Texture specularmap;
+		Texture metalicmap;
 		
 		if (all_textures.find(diffusemapname_) != all_textures.end())
 		{
 			diffusemap = all_textures.find(diffusemapname_)._Ptr->_Myval.second;
 		}
 
+		if (all_textures.find(specularmapname_) != all_textures.end())
+		{
+			specularmap = all_textures.find(specularmapname_)._Ptr->_Myval.second;
+		}
+
+		if (all_textures.find(metalnessmapname_) != all_textures.end())
+		{
+			metalicmap = all_textures.find(metalnessmapname_)._Ptr->_Myval.second;
+		}
+
 		mesh.load(
 			vertices.data(), vertices.size() * sizeof(vertex),
 			indices.data(), indices.size() * sizeof(unsigned int),
-			diffusemap
+			diffusemap,
+			specularmap,
+			metalicmap
 		);
 
 		this->add_mesh(mesh);

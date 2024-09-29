@@ -82,9 +82,14 @@ namespace fgr {
 			"\tS_LIGHT s_light[];\n"
 		"};\n"
 		"\n"
+
 		//Light Maps : 
-		"uniform sampler2D diffusemap;\n"
-		"uniform int dmloaded;\n"
+		"layout (binding = 0) uniform sampler2D diffusemap;\n"
+		"layout (binding = 1) uniform sampler2D specularmap;\n"
+		"layout (binding = 2) uniform sampler2D metalnessmap;\n"
+
+		"uniform vec3 viewer_position;\n"
+
 		"\n"
 		// OUTPUTS : 
 		"\n"
@@ -92,38 +97,49 @@ namespace fgr {
 		"\n"
 		// MAIN 
 		"void main() {\n"
-		"\n"
-		"vec3 modelcolor = vec3(0.3, 0.3, 0.3);\n"
-		"if(dmloaded == 1) {\n"
-			"\tmodelcolor = vec3(texture(diffusemap,_ftexcoords));\n"
-		"}\n"
-		"\n"
-		"vec3 result = vec3(0.0, 0.0, 0.0);\n"
-		"\n"
-		//AMBIENT CALCULATIONS : 
-		"\n"
+
+		// LIGHTING CALCULATIONS : 
+
+		"vec3 result = vec3(0.f, 0.f, 0.f);\n"
+
+		//Ambient 
 		"vec3 ambientcol = vec3(1.0, 1.0, 1.0);\n"
 		"float ambientsth = 0.03;\n"
-		"result += ambientcol * ambientsth * modelcolor;\n"
-		"\n"
-		// DIFFUSE CALCULATIONS : 
+		"result += ambientcol * ambientsth * texture(diffusemap,_ftexcoords).rgb;\n"
 
 		// Directional Light Calculations : 
-		"\n"
+
 		"for(int a = 0;a < d_count;a++) {\n"
+			// Diffuse 
 			"\tvec3 lightvector = normalize(-vec3(d_light[a].x, d_light[a].y, d_light[a].z));\n"
 			"\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
-			"\tvec3 diffres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * diffsth * modelcolor;\n"
+			"\tvec3 diffres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * diffsth * texture(diffusemap,_ftexcoords).rgb;\n"
 			"\tresult += diffres;\n"
+			// Specular
+			"vec3 viewDir = normalize(viewer_position - _fragPos);\n"
+			"vec3 reflected = reflect(-lightvector,normVector);\n"
+			"float specsth = pow(max(dot(viewDir,reflected), 0.0), 10.f);\n"
+			"vec3 specres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * specsth * texture(specularmap,_ftexcoords).rgb;\n"
+			"result += specres;\n"
 		"}\n"
 		"\n"
 		// Point Light Calculations : 
 		"\n"
 		"for(int a = 0;a < p_count;a++) {\n"
+
+			// Diffuse
 			"\tvec3 lightvector = normalize(vec3(p_light[a].x, p_light[a].y, p_light[a].z) - _fragPos);\n"
 			"\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
-			"\tvec3 diffres = vec3(p_light[a].r, p_light[a].g, p_light[a].b) * diffsth * modelcolor;\n"
+			"\tvec3 diffres = vec3(p_light[a].r, p_light[a].g, p_light[a].b) * diffsth * texture(diffusemap,_ftexcoords).rgb;\n"
 			"\tresult += diffres;\n"
+
+			// Specular
+			"vec3 viewDir = normalize(viewer_position - _fragPos);\n"
+			"vec3 reflected = reflect(-lightvector,normVector);\n"
+			"float specsth = pow(max(dot(viewDir,reflected), 0.0), 10.f);\n"
+			"vec3 specres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * specsth * texture(specularmap,_ftexcoords).rgb;\n"
+			"result += specres;\n"
+
 		"}\n"
 		"\n"
 		// Spot Light Calculations : 
@@ -134,10 +150,18 @@ namespace fgr {
 			"\tvec3 light_dir = normalize(_fragPos - light_pos);\n"
 			"\tfloat cos_val = dot(target_dir, light_dir);\n"
 			"\tif(cos_val > cos(radians(s_light[a].angle))) {\n"
+				// Diffuse 
 				"\t\tvec3 lightvector = -light_dir;\n"
 				"\t\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
-				"\t\tvec3 diffres = vec3(s_light[a].r, s_light[a].g, s_light[a].b) * diffsth * modelcolor;\n"
+				"\t\tvec3 diffres = vec3(s_light[a].r, s_light[a].g, s_light[a].b) * diffsth * texture(diffusemap,_ftexcoords).rgb;\n"
 				"\t\tresult += diffres;\n"
+
+				// Specular
+				"vec3 viewDir = normalize(viewer_position - _fragPos);\n"
+				"vec3 reflected = reflect(-lightvector,normVector);\n"
+				"float specsth = pow(max(dot(viewDir,reflected), 0.0), 10.f);\n"
+				"vec3 specres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * specsth * texture(specularmap,_ftexcoords).rgb;\n"
+				"result += specres;\n"
 			"}\n"
 		"}\n"
 		"\n"

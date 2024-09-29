@@ -14,6 +14,7 @@ namespace fgr {
 		void destroy();
 
 		void bind(GLenum texture_unit = GL_TEXTURE0);
+		static void unbind(GLenum texture_unit = GL_TEXTURE0);
 		void load(const char* path);
 
 		unsigned int give_id();

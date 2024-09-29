@@ -15,11 +15,12 @@ namespace fgr {
 		unsigned int vertexarray;
 		vertexbuffer vb;
 		indexbuffer ib;
-		Texture _diffusemap;
-		GLenum mode = GL_TRIANGLES;
 
-		std::vector<fgr::vertex> vertices; 
-		std::vector<unsigned int> indices;
+		Texture diffusemap;
+		Texture specularmap;
+		Texture metalnessmap;
+
+		GLenum mode = GL_TRIANGLES;
 	public:
 		void generate();
 		void destroy();
@@ -27,13 +28,19 @@ namespace fgr {
 		void load(
 			vertex* vertices, unsigned int vertices_size,
 			unsigned int* indices, unsigned int indices_size,
-			Texture diffusemap
+			Texture diffusemap,
+			Texture specularmap,
+			Texture metalnessmap
 		);
 
-		std::vector<fgr::vertex> get_vertices(); 
-		std::vector<unsigned int> get_indices();
+		void update_vertices(vertex* vertices, unsigned int vertices_size);
+		void update_indices(unsigned int* indices, unsigned int indices_size);
 
+		void update_diffuse_map(Texture diffusemap);
+		void update_specular_map(Texture specularmap);
+		void update_metalness_map(Texture metalnessmap);
 		void set_mode(GLenum mode);
+
 		void Draw(Shader shader);
 	};
 

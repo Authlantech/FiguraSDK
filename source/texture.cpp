@@ -22,6 +22,12 @@ void Texture::bind(GLenum texture_unit)
 	glBindTexture(GL_TEXTURE_2D,id);
 }
 
+void Texture::unbind(GLenum texture_unit)
+{
+	glActiveTexture(texture_unit);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture::load(const char* path)
 {
 	stbi_set_flip_vertically_on_load(true);

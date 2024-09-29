@@ -23,38 +23,45 @@ void Mesh::destroy()
 void Mesh::load(
 	vertex* vertices, unsigned int vertices_size,
 	unsigned int* indices, unsigned int indices_size,
-	Texture diffusemap
+	Texture diffusemap,
+	Texture specularmap,
+	Texture metalnessmap
 	)
 {
 	glBindVertexArray(vertexarray); 
 	vb.data(vertices, vertices_size); 
 	ib.data(indices, indices_size); 
 
-	_diffusemap = diffusemap;
-
-	this->vertices.clear();
-	this->indices.clear();
-	 
-	for (int a = 0; a < vertices_size / sizeof(fgr::vertex); a++)
-	{
-		this->vertices.push_back(vertices[a]);
-	}
-
-	for (int a = 0; a < indices_size / sizeof(unsigned int); a++)
-	{
-		this->indices.push_back(indices[a]);
-	}
-
+	this->diffusemap = diffusemap;
+	this->specularmap = specularmap; 
+	this->metalnessmap = metalnessmap;
 }
 
-std::vector<fgr::vertex> Mesh::get_vertices()
+void Mesh::update_vertices(vertex* vertices, unsigned int vertices_size)
 {
-	return vertices;
+	glBindVertexArray(vertexarray);
+	vb.data(vertices, vertices_size);
 }
 
-std::vector<unsigned int> Mesh::get_indices()
+void Mesh::update_indices(unsigned int* indices, unsigned int indices_size)
 {
-	return indices;
+	glBindVertexArray(vertexarray);
+	ib.data(indices, indices_size);
+}
+
+void Mesh::update_diffuse_map(Texture diffusemap)
+{
+	this->diffusemap = diffusemap;
+}
+
+void Mesh::update_specular_map(Texture specularmap)
+{
+	this->specularmap = specularmap;
+}
+
+void Mesh::update_metalness_map(Texture metalnessmap)
+{
+	this->metalnessmap = metalnessmap;
 }
 
 void Mesh::set_mode(GLenum mode)
@@ -65,13 +72,10 @@ void Mesh::set_mode(GLenum mode)
 void Mesh::Draw(Shader shader)
 {
 	glBindVertexArray(vertexarray); 
-	if (_diffusemap.loaded()) {
-		_diffusemap.bind(GL_TEXTURE0);
-	}
-	else {
-		glActiveTexture(GL_TEXTURE0); 
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}	
-	shader.uniformint("dmloaded", _diffusemap.loaded()); 
+
+	diffusemap.loaded()		?	diffusemap.bind(GL_TEXTURE0)	: fgr::Texture::unbind(GL_TEXTURE0);
+	specularmap.loaded()	?	specularmap.bind(GL_TEXTURE1)	: fgr::Texture::unbind(GL_TEXTURE1);
+	metalnessmap.loaded()	?	metalnessmap.bind(GL_TEXTURE2)	: fgr::Texture::unbind(GL_TEXTURE2);
+
 	glDrawElements(mode, ib.get_count(), GL_UNSIGNED_INT, nullptr);
 }
