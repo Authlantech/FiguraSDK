@@ -69,11 +69,11 @@ int main()
 
 	//Create directional light 
 	fgr::DirectionalLight light; 
-	light.create({ 0,0,-1 }, { 1,1,1 });
+	light.create({ 0,-1,0 }, { 1,1,1 });
 
 	//Load a model : 
 	fgr::Model model; 
-	model.Load("..\\assets\\wolf skull\\wolf_skull.obj");
+	model.Load("..\\assets\\argus cam\\argus_cam.obj");
 	model.set_position({ 0,0,-5 });
 
 	//Window loop 
@@ -134,6 +134,7 @@ int main()
 
 		//Draw Models : 
 		fgr::default_shader.use(); 
+		fgr::default_shader.uniformvec3("viewer_position", camera.get_position().x, camera.get_position().y, camera.get_position().z);
 		camera.use(fgr::default_shader);
 		model.Draw(fgr::default_shader);
 
