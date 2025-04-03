@@ -11,3 +11,5 @@
 /examples/assets/zefir cam
 /examples/assets/argus cam
 /examples/assets/gear
+/cmake-build-debug-visual-studio
+/.idea
