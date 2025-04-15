@@ -16,9 +16,7 @@ namespace fgr {
 		vertexbuffer vb;
 		indexbuffer ib;
 
-		Texture diffusemap;
-		Texture specularmap;
-		Texture metalnessmap;
+		Texture diffusemap;		
 
 		GLenum mode = GL_TRIANGLES;
 	public:
@@ -28,17 +26,13 @@ namespace fgr {
 		void load(
 			vertex* vertices, unsigned int vertices_size,
 			unsigned int* indices, unsigned int indices_size,
-			Texture diffusemap,
-			Texture specularmap,
-			Texture metalnessmap
+			Texture diffusemap
 		);
 
 		void update_vertices(vertex* vertices, unsigned int vertices_size);
 		void update_indices(unsigned int* indices, unsigned int indices_size);
 
-		void update_diffuse_map(Texture diffusemap);
-		void update_specular_map(Texture specularmap);
-		void update_metalness_map(Texture metalnessmap);
+		void update_diffuse_map(Texture diffusemap);		
 		void set_mode(GLenum mode);
 
 		void Draw(Shader shader);

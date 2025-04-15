@@ -84,9 +84,7 @@ namespace fgr {
 		"\n"
 
 		//Light Maps : 
-		"layout (binding = 0) uniform sampler2D diffusemap;\n"
-		"layout (binding = 1) uniform sampler2D specularmap;\n"
-		"layout (binding = 2) uniform sampler2D metalnessmap;\n"
+		"layout (binding = 0) uniform sampler2D diffusemap;\n"		
 
 		"uniform vec3 viewer_position;\n"
 
@@ -115,12 +113,6 @@ namespace fgr {
 		"\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
 		"\tvec3 diffres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * diffsth * texture(diffusemap,_ftexcoords).rgb;\n"
 		"\tresult += diffres;\n"
-		// Specular
-		"vec3 viewDir = normalize(viewer_position - _fragPos);\n"
-		"vec3 reflected = reflect(-lightvector,normVector);\n"
-		"float specsth = pow(max(dot(viewDir,reflected), 0.0), 10.f);\n"
-		"vec3 specres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * specsth * texture(specularmap,_ftexcoords).rgb;\n"
-		"result += specres;\n"
 		"}\n"
 		"\n"
 		// Point Light Calculations : 
@@ -132,14 +124,6 @@ namespace fgr {
 		"\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
 		"\tvec3 diffres = vec3(p_light[a].r, p_light[a].g, p_light[a].b) * diffsth * texture(diffusemap,_ftexcoords).rgb;\n"
 		"\tresult += diffres;\n"
-
-		// Specular
-		"vec3 viewDir = normalize(viewer_position - _fragPos);\n"
-		"vec3 reflected = reflect(-lightvector,normVector);\n"
-		"float specsth = pow(max(dot(viewDir,reflected), 0.0), 10.f);\n"
-		"vec3 specres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * specsth * texture(specularmap,_ftexcoords).rgb;\n"
-		"result += specres;\n"
-
 		"}\n"
 		"\n"
 		// Spot Light Calculations : 
@@ -155,13 +139,6 @@ namespace fgr {
 		"\t\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
 		"\t\tvec3 diffres = vec3(s_light[a].r, s_light[a].g, s_light[a].b) * diffsth * texture(diffusemap,_ftexcoords).rgb;\n"
 		"\t\tresult += diffres;\n"
-
-		// Specular
-		"vec3 viewDir = normalize(viewer_position - _fragPos);\n"
-		"vec3 reflected = reflect(-lightvector,normVector);\n"
-		"float specsth = pow(max(dot(viewDir,reflected), 0.0), 10.f);\n"
-		"vec3 specres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * specsth * texture(specularmap,_ftexcoords).rgb;\n"
-		"result += specres;\n"
 		"}\n"
 		"}\n"
 		"\n"
