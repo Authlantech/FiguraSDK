@@ -68,8 +68,8 @@ int main()
 	camera.create_perspective(c_attribs.fov, (float)w_attribs.width / (float)w_attribs.height, c_attribs.near, c_attribs.far);
 
 	//Create directional light 
-	fgr::DirectionalLight light; 
-	light.create({ 0,-1,0 }, { 1,1,1 });
+	fgr::PointLight light; 
+	light.create({ 20,0,20 }, { 1,0,0 });
 
 	//Load a model : 
 	fgr::Model model; 
@@ -131,6 +131,8 @@ int main()
 			camera.face(camera.get_position() + glm::vec3(cam_orientation));
 			glfwSetCursorPos(window, (float)w_attribs.width / 2.f, (float)w_attribs.height / 2.f);
 		}
+
+		light.set_position(glm::vec4(light.get_position(),1.f) * glm::rotate(glm::mat4(1.f), glm::radians(3.f), glm::vec3(0.f, 1.f, 0.f)));
 
 		//Draw Models : 
 		fgr::default_shader.use(); 
