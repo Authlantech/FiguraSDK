@@ -69,7 +69,7 @@ int main()
 
 	//Create directional light 
 	fgr::PointLight light; 
-	light.create({ 20,0,20 }, { 1,0,0 });
+	light.create({ 20,0,20 }, { 0,1,0 });
 
 	//Load a model : 
 	fgr::Model model; 

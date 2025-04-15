@@ -34,9 +34,6 @@ bool Model::Load(const char* path)
 
 	if (scene == nullptr) return false;
 
-
-	printf("\n<MODEL> : %s\n", file_name.c_str());
-
 	//Extracting all texture file names : 
 
 	std::vector<std::string> texture_names; 
@@ -55,8 +52,6 @@ bool Model::Load(const char* path)
 			std::string name = std::string(diffusemapname.C_Str());
 			name = name.substr(name.find_last_of('\\') + 1, name.size());			
 
-			printf("\t<DIFFUSE MAP> : %s\n", name.c_str());
-
 			// Adding file name to list :
 
 			if (std::find(texture_names.begin(), texture_names.end(), name) == texture_names.end())
@@ -72,9 +67,6 @@ bool Model::Load(const char* path)
 			std::string name = std::string(specularmapname.C_Str());
 			name = name.substr(name.find_last_of('\\') + 1, name.size());
 
-			printf("\t<SPECULAR MAP> : %s\n", name.c_str());
-
-
 			// Adding file name to list :
 
 			if (std::find(texture_names.begin(), texture_names.end(), name) == texture_names.end())
@@ -89,8 +81,6 @@ bool Model::Load(const char* path)
 		{
 			std::string name = std::string(metalnessmapname.C_Str());
 			name = name.substr(name.find_last_of('\\') + 1, name.size());
-
-			printf("\t<METALNESS MAP> : %s\n", name.c_str());
 
 			// Adding file name to list :
 
