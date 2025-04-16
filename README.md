@@ -19,6 +19,9 @@ link_libraries(
 ```
 ### Example Code 
 An example program can be found in `examples` folder.
+> [!NOTE]
+> example.cpp uses `GLFW` for creating OpenGL context but it is not strictly necessary.
+> You can choose another windowing library of your own choosing provided that it can create an OpenGL context
 ## Licenses
 Licenses of used libs can be found at locations given below
 * Assimp `include/assimp/LICENSE.txt`
