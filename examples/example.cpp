@@ -67,13 +67,13 @@ int main()
 	//Create camera : 	
 	camera.create_perspective(c_attribs.fov, (float)w_attribs.width / (float)w_attribs.height, c_attribs.near, c_attribs.far);
 
-	//Create directional light 
-	fgr::PointLight light; 
-	light.create({ 20,0,20 }, { 0,1,0 });
+	//Create directional light
+	fgr::PointLight light;
+	light.create({ 20,0,20 }, { 1,1,1 });
 
 	//Load a model : 
 	fgr::Model model; 
-	model.Load("..\\assets\\argus cam\\argus_cam.obj");
+	model.Load("..\\assets\\wolf skull\\wolf_skull.obj");
 	model.set_position({ 0,0,-5 });
 
 	//Window loop 
