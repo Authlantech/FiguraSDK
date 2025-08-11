@@ -13,7 +13,7 @@ add_library (
 	"../source/texture.cpp"
 	"../source/light.cpp"
 	"../source/Figura.cpp"
-    )
+)
 
 target_include_directories("FiguraSDK" 
 PUBLIC "../include"

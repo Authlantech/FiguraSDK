@@ -2,12 +2,10 @@ cmake_minimum_required (VERSION 3.8)
 
 include_directories(
 	"../include"
-	"deps/GLFW/include"
 )
 
 link_directories(
 	"../lib"
-	"deps/GLFW/lib-vc2022"
 )
 
 link_libraries(
