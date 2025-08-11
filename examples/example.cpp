@@ -114,7 +114,7 @@ int main()
 		}		
 
 		light.set_position(glm::vec4(light.get_position(),1.f) * glm::rotate(glm::mat4(1.f), glm::radians(3.f), glm::vec3(0.f, 1.f, 0.f)));
-
+    
 		//Draw Models : 		
 		camera.use();
 		model.Draw();

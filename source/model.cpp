@@ -156,7 +156,7 @@ bool Model::Load(const char* path)
 		
 		if (all_textures.find(diffusemapname_) != all_textures.end())
 		{
-			diffusemap = all_textures.find(diffusemapname_)._Ptr->_Myval.second;
+			diffusemap = all_textures.find(diffusemapname_)->second;
 		}
 
 		mesh.load(
