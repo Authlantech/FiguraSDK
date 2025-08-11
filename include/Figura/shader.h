@@ -86,8 +86,6 @@ namespace fgr {
 		//Light Maps : 
 		"layout (binding = 0) uniform sampler2D diffusemap;\n"		
 
-		"uniform vec3 viewer_position;\n"
-
 		"\n"
 		// OUTPUTS : 
 		"\n"
