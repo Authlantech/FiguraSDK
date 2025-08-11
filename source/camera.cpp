@@ -1,4 +1,6 @@
 #include <Figura/camera.h>
+#include <Figura/Figura.h>
+
 using namespace fgr;
 
 void Camera::create_perspective(float fov, float aspect, float zNear, float zFar)
@@ -58,8 +60,9 @@ OrthographicAttribs Camera::give_orthographic_attribs()
 	return o_attribs;
 }
 
-void Camera::use(Shader shader)
+void Camera::use()
 {
-	shader.uniformmat4f("projectionMatrix", projectionMatrix); 
-	shader.uniformmat4f("viewMatrix", viewMatrix);
+	fgr::default_window.current_shader.uniformvec3("viewer_position", position.x, position.y, position.z);
+	fgr::default_window.current_shader.uniformmat4f("projectionMatrix", projectionMatrix); 
+	fgr::default_window.current_shader.uniformmat4f("viewMatrix", viewMatrix);
 }

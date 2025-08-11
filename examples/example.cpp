@@ -62,7 +62,7 @@ int main()
 	glfwSetScrollCallback(window, &scroll_callback);
 
 	//Init Figura : 
-	fgr::InitFigura(); 
+	fgr::default_window.init_window();
 
 	//Create camera : 	
 	camera.create_perspective(c_attribs.fov, (float)w_attribs.width / (float)w_attribs.height, c_attribs.near, c_attribs.far);
@@ -74,12 +74,12 @@ int main()
 	//Load a model : 
 	fgr::Model model; 
 	model.Load("..\\assets\\wolf skull\\wolf_skull.obj");
-	model.set_position({ 0,0,-5 });
+	model.set_position({ 0,0,-10 });
 
 	//Window loop 
 	while (!glfwWindowShouldClose(window))
 	{
-		fgr::ClearColor(0.2f, 0.2f, 0.2f);
+		fgr::default_window.clear();
 
 		// Move Camera 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -130,15 +130,13 @@ int main()
 			cam_orientation = glm::rotate(glm::mat4(1.f), c_attribs.sensitivity * -glm::radians((float)y * (c_attribs.fov / 2.f)), glm::normalize(glm::cross(up, glm::vec3(cam_orientation)))) * cam_orientation;
 			camera.face(camera.get_position() + glm::vec3(cam_orientation));
 			glfwSetCursorPos(window, (float)w_attribs.width / 2.f, (float)w_attribs.height / 2.f);
-		}
+		}		
 
 		light.set_position(glm::vec4(light.get_position(),1.f) * glm::rotate(glm::mat4(1.f), glm::radians(3.f), glm::vec3(0.f, 1.f, 0.f)));
 
-		//Draw Models : 
-		fgr::default_shader.use(); 
-		fgr::default_shader.uniformvec3("viewer_position", camera.get_position().x, camera.get_position().y, camera.get_position().z);
-		camera.use(fgr::default_shader);
-		model.Draw(fgr::default_shader);
+		//Draw Models : 		
+		camera.use();
+		model.Draw();
 
 		glfwPollEvents(); 
 		glfwSwapBuffers(window);
