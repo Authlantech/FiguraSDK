@@ -1,4 +1,5 @@
 #include <Figura/model.h>
+#include <Figura/Figura.h>
 
 using namespace fgr;
 
@@ -191,14 +192,14 @@ std::vector<fgr::Mesh> Model::get_meshes()
 	return meshes;
 }
 
-void Model::Draw(Shader shader)
+void Model::Draw()
 {
 	glm::mat4 modelMatrix = translation * rotation * scaling;
 	glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelMatrix));
-	shader.uniformmat4f("modelMatrix", modelMatrix); 
-	shader.uniformmat4f("normalMatrix", normalMatrix);
+	fgr::default_window.current_shader.uniformmat4f("modelMatrix", modelMatrix);
+	fgr::default_window.current_shader.uniformmat4f("normalMatrix", normalMatrix);
 	for (int a = 0;a < meshes.size();a++)
 	{
-		meshes[a].Draw(shader);
+		meshes[a].Draw(fgr::default_window.current_shader);
 	}
 }

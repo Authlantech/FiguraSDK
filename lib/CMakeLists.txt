@@ -12,6 +12,7 @@ add_library (
 	"../source/glad.c"
 	"../source/texture.cpp"
 	"../source/light.cpp"
+	"../source/Figura.cpp"
     )
 
 target_include_directories("FiguraSDK" 

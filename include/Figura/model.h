@@ -40,7 +40,9 @@ namespace fgr {
 		std::vector<fgr::Mesh> get_meshes();
 
 		bool Load(const char* path);
-		void Draw(Shader shader);
+		void Draw();
+
+		friend class fgr::Model;
 	};
 
 }
