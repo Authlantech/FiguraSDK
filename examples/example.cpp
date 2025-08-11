@@ -40,34 +40,15 @@ void scroll_callback(GLFWwindow*w, double x_offset, double y_offset)
 
 int main()
 {
-	// Init GLFW
-	int res = glfwInit();
-	if (res == GLFW_FALSE)
-	{
-		printf("glfw could not be initilaized!\n"); 
-		return -1;
-	}
-
-	// Create window
-	GLFWwindow* window = glfwCreateWindow(w_attribs.width, w_attribs.height, w_attribs.title, 0, 0);
-	glfwMakeContextCurrent(window); 
-
-	// Init glad 
-	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-	glViewport(0, 0, w_attribs.width, w_attribs.height);
-
-	//Window callbacks : 
-	glfwSetWindowSizeCallback(window, &window_resize_callback);
-	glfwSetScrollCallback(window, &scroll_callback);
-
 	//Init Figura : 
-	fgr::default_window.init_window();
+	fgr::default_window.init_window(w_attribs.width,w_attribs.height,w_attribs.title);
+
+	GLFWwindow* window = fgr::default_window._get_window();
 
 	//Create camera : 	
 	camera.create_perspective(c_attribs.fov, (float)w_attribs.width / (float)w_attribs.height, c_attribs.near, c_attribs.far);
 
-	//Create directional light
+	//Create directional light	
 	fgr::PointLight light;
 	light.create({ 20,0,20 }, { 1,1,1 });
 
@@ -77,9 +58,9 @@ int main()
 	model.set_position({ 0,0,-10 });
 
 	//Window loop 
-	while (!glfwWindowShouldClose(window))
+	while (fgr::default_window.is_open())
 	{
-		fgr::default_window.clear();
+		fgr::default_window.clear(0.2,0.2,0.2,0);
 
 		// Move Camera 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -137,9 +118,7 @@ int main()
 		//Draw Models : 		
 		camera.use();
 		model.Draw();
-
-		glfwPollEvents(); 
-		glfwSwapBuffers(window);
+		fgr::default_window.update();
 
 		_sleep(1000.f / (float)w_attribs.fps);
 	}
