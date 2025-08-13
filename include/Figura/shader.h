@@ -16,9 +16,13 @@ namespace fgr {
 		"layout (location = 0) in vec3 _vpos;\n"
 		"layout (location = 2) in vec2 _vtexcoords;\n"
 		"layout (location = 3) in vec3 _vnormal;\n"
+		"layout (location = 4) in vec3 _vtangent;\n"
+		"layout (location = 5) in vec3 _vbittangent;\n"
 		"\n"
 		"out vec2 _ftexcoords;\n"
 		"out vec3 _fnormal;\n"
+		"out vec3 _ftangent;\n"
+		"out vec3 _fbittangent;\n"
 		"out vec3 _fragPos;\n"
 		"\n"
 		"uniform mat4 modelMatrix;\n"
@@ -30,6 +34,8 @@ namespace fgr {
 		"\tgl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(_vpos,1.0);\n"
 		"\t_ftexcoords = _vtexcoords;\n"
 		"\t_fnormal =  mat3(normalMatrix) * _vnormal;\n"
+		"\t_ftangent = mat3(normalMatrix) * _vtangent;\n"
+		"\t_fbittangent = mat3(normalMatrix) * _vbittangent;\n"
 		"\t_fragPos = vec3(modelMatrix * vec4(_vpos,1.0));\n"
 		"}\n";
 
@@ -40,9 +46,10 @@ namespace fgr {
 		"\n"
 		"in vec2 _ftexcoords;\n"
 		"in vec3 _fnormal;\n"
+		"in vec3 _ftangent;\n"
+		"in vec3 _fbittangent;\n"
 		"in vec3 _fragPos;\n"
 		"\n"
-		"vec3 normVector = normalize(_fnormal);\n"
 		"\n"
 		// Directional Light : 
 		"\n"
@@ -85,12 +92,18 @@ namespace fgr {
 
 		//Light Maps : 
 		"layout (binding = 0) uniform sampler2D diffusemap;\n"		
+		"layout (binding = 1) uniform sampler2D normalmap;\n"
 
-		"\n"
 		// OUTPUTS : 
-		"\n"
 		"out vec4 final_color;\n"
-		"\n"
+
+
+		// Calculating the normal : 
+		"uniform mat4 normalMatrix;\n"
+		// 	"vec3 normVector = normalize(_fnormal);\n"
+		"mat3 TBN = mat3(normalize(_ftangent),normalize(_fbittangent),normalize(_fnormal));\n"
+		"vec3 normVector = TBN * (texture(normalmap,_ftexcoords).rgb * 2.0 - 1.0);\n"		
+
 		// MAIN 
 		"void main() {\n"
 
@@ -111,10 +124,10 @@ namespace fgr {
 		"\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
 		"\tvec3 diffres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * diffsth * texture(diffusemap,_ftexcoords).rgb;\n"
 		"\tresult += diffres;\n"
-		"}\n"
-		"\n"
+		"}\n"		
+
 		// Point Light Calculations : 
-		"\n"
+		
 		"for(int a = 0;a < p_count;a++) {\n"
 
 		// Diffuse
@@ -123,9 +136,9 @@ namespace fgr {
 		"\tvec3 diffres = vec3(p_light[a].r, p_light[a].g, p_light[a].b) * diffsth * texture(diffusemap,_ftexcoords).rgb;\n"
 		"\tresult += diffres;\n"
 		"}\n"
-		"\n"
+		
 		// Spot Light Calculations : 
-		"\n"
+		
 		"for(int a = 0;a < s_count;a++) {\n"
 		"\tvec3 light_pos = vec3(s_light[a].x,s_light[a].y,s_light[a].z);\n"
 		"\tvec3 target_dir = normalize(vec3(s_light[a].dx, s_light[a].dy, s_light[a].dz));\n"
@@ -139,10 +152,10 @@ namespace fgr {
 		"\t\tresult += diffres;\n"
 		"}\n"
 		"}\n"
-		"\n"
+		
 		"float gamma = 2.2f;\n"
 		"final_color = vec4(pow(result,vec3(1.0/gamma)),1.f);\n"
-		"\n"
+		
 		"}\n";
 
 		// SHADERS FOR NORMAL RENDERING : 

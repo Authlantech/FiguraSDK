@@ -54,13 +54,14 @@ int main()
 
 	//Load a model : 
 	fgr::Model model; 
-	model.Load("..\\assets\\wolf skull\\wolf_skull.obj");
+	model.Load("..\\assets\\rock pile\\ystone-pile.fbx");
 	model.set_position({ 0,0,-10 });
+	model.rotate({ -1,0,0 }, 40);
 
 	//Window loop 
 	while (fgr::default_window.is_open())
 	{
-		fgr::default_window.clear(0.2,0.2,0.2,0);
+		fgr::default_window.clear(0.2,0.2,0.8,0);
 
 		// Move Camera 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -117,7 +118,7 @@ int main()
     
 		//Draw Models : 		
 		camera.use();
-		model.Draw();
+		model.Draw();	
 		fgr::default_window.update();
 
 		_sleep(1000.f / (float)w_attribs.fps);

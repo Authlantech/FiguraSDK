@@ -17,6 +17,7 @@ namespace fgr {
 		indexbuffer ib;
 
 		Texture diffusemap;		
+		Texture normalmap;
 
 		GLenum mode = GL_TRIANGLES;
 	public:
@@ -26,7 +27,8 @@ namespace fgr {
 		void load(
 			vertex* vertices, unsigned int vertices_size,
 			unsigned int* indices, unsigned int indices_size,
-			Texture diffusemap
+			Texture diffusemap,
+			Texture normalmap
 		);
 
 		void update_vertices(vertex* vertices, unsigned int vertices_size);
@@ -35,7 +37,7 @@ namespace fgr {
 		void update_diffuse_map(Texture diffusemap);		
 		void set_mode(GLenum mode);
 
-		void Draw(Shader shader);
+		void Draw();
 	};
 
 }

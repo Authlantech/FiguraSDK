@@ -31,51 +31,63 @@ bool Model::Load(const char* path)
 	std::string file_name = fpath.substr(fpath.find_last_of('\\') + 1,fpath.size());	
 
 	Assimp::Importer importer; 
-	const aiScene* scene = importer.ReadFile(fpath, aiProcess_Triangulate | aiProcess_GenNormals); 			
+	const aiScene* scene = importer.ReadFile(fpath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace); 			
 
 	if (scene == nullptr) return false;
 
-	//Extracting all texture file names : 
-
-	std::vector<std::string> texture_names; 
+	// Extracting all texture file names : 
+	std::vector<std::string> diffuse_texture_names; 
+	std::vector<std::string> normal_texture_names; 
 
 	for (int a = 0; a < scene->mNumMaterials; a++)
 	{
 		aiMaterial* m = scene->mMaterials[a];		
 		aiString diffusemapname;		
-		aiString specularmapname;
-		aiString metalnessmapname;
+		aiString normalmapname;
 
 		// Extracting diffuse maps : 
-
-		if (m->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &diffusemapname) == AI_SUCCESS)
+		if (m->GetTexture(aiTextureType_DIFFUSE, 0, &diffusemapname) == AI_SUCCESS)
 		{
 			std::string name = std::string(diffusemapname.C_Str());
-			name = name.substr(name.find_last_of('\\') + 1, name.size());			
-
-			// Adding file name to list :
-
-			if (std::find(texture_names.begin(), texture_names.end(), name) == texture_names.end())
+			name = name.substr(name.find_last_of('\\') + 1, name.size());
+			if (std::find(diffuse_texture_names.begin(), diffuse_texture_names.end(), name) == diffuse_texture_names.end())
 			{
-				texture_names.push_back(name);
+				diffuse_texture_names.push_back(name);
 			}
 		}
 
+		// Extracting normal maps : 
+		if (m->GetTexture(aiTextureType_NORMALS, 0, &normalmapname) == AI_SUCCESS)
+		{
+			std::string name = std::string(normalmapname.C_Str());
+			name = name.substr(name.find_last_of('\\') + 1, name.size());
+			if (std::find(normal_texture_names.begin(), normal_texture_names.end(), name) == normal_texture_names.end())
+			{
+				normal_texture_names.push_back(name);
+			}
+		}
 	}
 
 	// Loading all textures : 
-
-	std::map<std::string, Texture> all_textures;
-	for (std::string file : texture_names)
+	std::map<std::string, Texture> all_diffuse_textures;
+	for (std::string file : diffuse_texture_names)
 	{
 		Texture texture; 
 		texture.generate();		
 		texture.load(std::string(folder + '\\' + file).c_str());
-		all_textures.insert(std::pair<std::string,Texture>(file,texture));
+		all_diffuse_textures.insert(std::pair<std::string,Texture>(file,texture));
+	}
+
+	std::map<std::string, Texture> all_normal_textures;
+	for (std::string file : normal_texture_names)
+	{
+		Texture texture; 
+		texture.generate();		
+		texture.load(std::string(folder + '\\' + file).c_str());
+		all_normal_textures.insert(std::pair<std::string,Texture>(file,texture));
 	}
 
 	// Loading all meshes : 
-
 	for (int a = 0; a < scene->mNumMeshes; a++)
 	{		
 		Mesh mesh; 
@@ -83,19 +95,13 @@ bool Model::Load(const char* path)
 
 		aiMesh* currentMesh = scene->mMeshes[a];
 
-		// Looping through every vertex : 
-
 		std::vector<vertex> vertices; 
 		for (int b = 0; b < scene->mMeshes[a]->mNumVertices; b++)
 		{
-			// Loading vertex position : 
-
 			vertex v;
 			v.pos[0] = currentMesh->mVertices[b].x;
 			v.pos[1] = currentMesh->mVertices[b].y;
 			v.pos[2] = currentMesh->mVertices[b].z;						
-
-			// Loading texture coordinates if exists :
 
 			if (currentMesh->HasTextureCoords(0))
 			{				
@@ -103,73 +109,91 @@ bool Model::Load(const char* path)
 				v.texture_coordinates[1] = currentMesh->mTextureCoords[0][b].y;
 			}
 
-			// Loading vertex normal if exists :
-
 			if (scene->mMeshes[a]->HasNormals())
 			{
-				v.normals[0] = currentMesh->mNormals[b].x;
-				v.normals[1] = currentMesh->mNormals[b].y;
-				v.normals[2] = currentMesh->mNormals[b].z;
+				v.normal[0] = currentMesh->mNormals[b].x;
+				v.normal[1] = currentMesh->mNormals[b].y;
+				v.normal[2] = currentMesh->mNormals[b].z;
+			}
+
+			if (scene->mMeshes[a]->HasTangentsAndBitangents())
+			{
+				v.tangent[0] = currentMesh->mTangents[b].x;
+				v.tangent[1] = currentMesh->mTangents[b].y;
+				v.tangent[2] = currentMesh->mTangents[b].z;
+
+				v.bittangent[0] = currentMesh->mBitangents[b].x;
+				v.bittangent[1] = currentMesh->mBitangents[b].y;
+				v.bittangent[2] = currentMesh->mBitangents[b].z;
 			}
 
 			vertices.push_back(v);
 		}
 
 		std::vector<unsigned int> indices;
-
-		// Loading indices : 
-
 		for (int b = 0; b < currentMesh->mNumFaces; b++)
 		{		
 			for (int c = 0; c < currentMesh->mFaces[b].mNumIndices; c++)
 			{
 				indices.push_back(currentMesh->mFaces[b].mIndices[c]);
 			}
-		}
-
-		// Loading material
+		}		
 
 		aiMaterial* material = scene->mMaterials[currentMesh->mMaterialIndex];
 		aiString diffusemapname;		
+		aiString normalmapname;
 
 		std::string diffusemapname_;
+		std::string normalmapname_;
 
 		// Extracting diffuse map name if exists 				
-
 		if (material->GetTexture(aiTextureType_DIFFUSE, 0, &diffusemapname) == AI_SUCCESS) {
-
 			std::string dmn(diffusemapname.C_Str());
-
 			if (dmn.find('\\') != std::string::npos) {
 				dmn = dmn.substr(dmn.find_last_of('\\') + 1, dmn.size());
 			}
-
 			else if (dmn.find('/') != std::string::npos) {
 				dmn = dmn.substr(dmn.find_last_of('/') + 1, dmn.size());
 			}
-
 			diffusemapname_ = dmn;
+		}
 
+		// Extracting normal map name if exists
+		if (material->GetTexture(aiTextureType_NORMALS, 0, &normalmapname) == AI_SUCCESS) {
+			std::string nmn(normalmapname.C_Str());
+			if (nmn.find('\\') != std::string::npos) {
+				nmn = nmn.substr(nmn.find_last_of('\\') + 1, nmn.size());
+			}
+			else if (nmn.find('/') != std::string::npos) {
+				nmn = nmn.substr(nmn.find_last_of('/') + 1, nmn.size());
+			}
+			normalmapname_ = nmn;
 		}
 	
 		Texture diffusemap;
+		Texture normalmap;
 		
-		if (all_textures.find(diffusemapname_) != all_textures.end())
+		if (all_diffuse_textures.find(diffusemapname_) != all_diffuse_textures.end())
 		{
-			diffusemap = all_textures.find(diffusemapname_)->second;
+			diffusemap = all_diffuse_textures.find(diffusemapname_)->second;
+		}
+		if (all_normal_textures.find(normalmapname_) != all_normal_textures.end())
+		{
+			normalmap = all_normal_textures.find(normalmapname_)->second;
 		}
 
+		// You may need to update Mesh::load to accept a normal map
 		mesh.load(
 			vertices.data(), vertices.size() * sizeof(vertex),
 			indices.data(), indices.size() * sizeof(unsigned int),
-			diffusemap
+			diffusemap,
+			normalmap
 		);
 
 		this->add_mesh(mesh);
 	}
 	
 	return true;
-
 }
 
 glm::vec3 Model::get_position()
@@ -200,6 +224,6 @@ void Model::Draw()
 	fgr::default_window.current_shader.uniformmat4f("normalMatrix", normalMatrix);
 	for (int a = 0;a < meshes.size();a++)
 	{
-		meshes[a].Draw(fgr::default_window.current_shader);
+		meshes[a].Draw();
 	}
 }

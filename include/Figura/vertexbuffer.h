@@ -8,7 +8,9 @@ namespace fgr {
 		float pos[3];
 		float color[4];
 		float texture_coordinates[2];
-		float normals[3];
+		float normal[3];
+		float tangent[3]; 
+		float bittangent[3];
 	};
 
 

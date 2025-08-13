@@ -30,9 +30,13 @@ void vertexbuffer::set_layout()
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(4);
+	glEnableVertexAttribArray(5);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)(sizeof(float) * 3));
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)(sizeof(float) * 7));
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)(sizeof(float) * 9));
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)(sizeof(float) * 12));
+	glVertexAttribPointer(5, 3, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)(sizeof(float) * 15));
 }
