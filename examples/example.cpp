@@ -54,7 +54,7 @@ int main()
 
 	//Load a model : 
 	fgr::Model model; 
-	model.Load("..\\assets\\rock pile\\ystone-pile.fbx");
+	model.Load("..\\assets\\Dirty stones pile\\ystone-pile.fbx");
 	model.set_position({ 0,0,-10 });
 	model.rotate({ -1,0,0 }, 40);
 
