@@ -20,7 +20,8 @@ link_libraries(
 ### Example Code 
 An example program can be found in `examples` folder.
 
-<img width="797" height="824" alt="Ekran görüntüsü 2025-08-12 002956" src="https://github.com/user-attachments/assets/70139f86-bf64-4818-a687-a4c400d576f2" />
-
 ## Licenses
+### Used programs
 License files of used libraries can be found in `LICENSES` folder.
+### Used assets
+* “Dirty stones pile” by matousekfoto, available at [Sketchfab](https://sketchfab.com/3d-models/dirty-stones-pile-893e64e62f414b439672a8770dd2869d), Licensed under [CC BY 4.0.](https://creativecommons.org/licenses/by/4.0/legalcode.en).
