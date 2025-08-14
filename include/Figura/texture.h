@@ -6,19 +6,24 @@ namespace fgr {
 	class Texture
 	{
 	private:
-		unsigned int id;
-		int width, height, nrChannels;
-		int _loaded = 0;
-	public:
-		void generate();
-		void destroy();
+		// Texture attribs & data 
+		unsigned char* pixels = nullptr; 
+		int width, height, nrChannels;		
 
-		void bind(GLenum texture_unit = GL_TEXTURE0);
-		static void unbind(GLenum texture_unit = GL_TEXTURE0);
-		void load(const char* path);
+		// OpenGL : 
+		unsigned int _id = 0; 		
 
-		unsigned int give_id();
+	public:		
 
-		int loaded();
+		void LoadFromFile(const char* path); 		
+
+		bool ready_for_rendering(); 
+		bool pixels_stored_in_ram();
+
+		void generate(); 
+		void reset(); 
+		void bind(GLenum texture_slot = GL_TEXTURE0); 
+		static void unbind(GLenum texture_slot = GL_TEXTURE0); 
+		
 	};
 }

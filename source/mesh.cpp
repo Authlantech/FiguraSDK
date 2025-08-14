@@ -4,65 +4,71 @@ using namespace fgr;
 
 void Mesh::generate()
 {
-	glGenVertexArrays(1, &vertexarray); 
-	glBindVertexArray(vertexarray); 
-	vb.generate(); 
-	vb.set_layout(); 
+	if (verticies.size() > 0 && vertexarray == 0)
+	{
+		glGenVertexArrays(1, &vertexarray); 
+		glBindVertexArray(vertexarray); 
 
-	ib.generate(); 
-	ib.bind(); 
+		vb.generate(); 
+		vb.set_layout();
+		vb.data(verticies.data(), verticies.size() * sizeof(fgr::vertex)); 
+
+		ib.generate(); 
+		ib.bind();
+		ib.data(indicies.data(), indicies.size() * sizeof(unsigned int));
+		
+		diffusemap.generate(); 
+		normalmap.generate();		
+
+		verticies.clear(); 
+		indicies.clear(); 				
+	}
 }
 
-void Mesh::destroy()
-{
-	vb.destroy(); 
-	ib.destroy(); 
-	glDeleteVertexArrays(1,&vertexarray); 
+void Mesh::reset()
+{	
+	if (vertexarray != 0)
+	{
+		vb.destroy();
+		ib.destroy();
+		glDeleteVertexArrays(1, &vertexarray);
+		vertexarray = 0;
+	}
+
+	diffusemap.reset();
+	normalmap.reset();
+
+	verticies.clear(); 
+	indicies.clear();
 }
 
 void Mesh::load(
-	vertex* vertices, unsigned int vertices_size,
-	unsigned int* indices, unsigned int indices_size,
+	std::vector<fgr::vertex> verticies,
+	std::vector<unsigned int> indicies,
 	Texture diffusemap,
 	Texture normalmap
-	)
+)
 {
-	glBindVertexArray(vertexarray); 
-	vb.data(vertices, vertices_size); 
-	ib.data(indices, indices_size); 
+	this->reset();
 
-	this->diffusemap = diffusemap;
+	this->diffusemap = diffusemap; 
 	this->normalmap = normalmap;
-}
 
-void Mesh::update_vertices(vertex* vertices, unsigned int vertices_size)
-{
-	glBindVertexArray(vertexarray);
-	vb.data(vertices, vertices_size);
-}
-
-void Mesh::update_indices(unsigned int* indices, unsigned int indices_size)
-{
-	glBindVertexArray(vertexarray);
-	ib.data(indices, indices_size);
-}
-
-void Mesh::update_diffuse_map(Texture diffusemap)
-{
-	this->diffusemap = diffusemap;
-}
-
-void Mesh::set_mode(GLenum mode)
-{
-	this->mode = mode;
+	this->verticies = verticies; 
+	this->indicies = indicies; 
 }
 
 void Mesh::Draw()
-{
-	glBindVertexArray(vertexarray); 
+{	
+	generate();
 
-	diffusemap.loaded()	? diffusemap.bind(GL_TEXTURE0) : fgr::Texture::unbind(GL_TEXTURE0);
-	normalmap.loaded()	? normalmap.bind(GL_TEXTURE1)  : fgr::Texture::unbind(GL_TEXTURE0);
-
-	glDrawElements(mode, ib.get_count(), GL_UNSIGNED_INT, nullptr);
+	if (vertexarray != 0 && verticies.empty())
+	{
+		glBindVertexArray(vertexarray);
+		diffusemap.bind(GL_TEXTURE0);
+		normalmap.bind(GL_TEXTURE1);
+		
+		glDrawElements(GL_TRIANGLES, ib.get_count(), GL_UNSIGNED_INT, nullptr);		
+	}
 }
+

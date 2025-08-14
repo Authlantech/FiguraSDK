@@ -11,9 +11,10 @@
 
 #include <iostream> 
 #include <thread>
+#include <future>
 #include <vector>
 #include <map>
-#include <string>
+#include <string> 
 
 namespace fgr {
 
@@ -25,6 +26,8 @@ namespace fgr {
 		glm::mat4 scaling = glm::mat4(1.f);
 
 		glm::vec3 position = glm::vec3(0.f, 0.f, 0.f);
+
+		std::future<void> loading_thread_checker;
 
 	public:
 
@@ -39,7 +42,7 @@ namespace fgr {
 
 		std::vector<fgr::Mesh> get_meshes();
 
-		bool Load(const char* path);
+		void Load(const char* path);
 		void Draw();
 
 		friend class fgr::Model;
