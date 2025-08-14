@@ -99,8 +99,6 @@ namespace fgr {
 
 
 		// Calculating the normal : 
-		"uniform mat4 normalMatrix;\n"
-		// 	"vec3 normVector = normalize(_fnormal);\n"
 		"mat3 TBN = mat3(normalize(_ftangent),normalize(_fbittangent),normalize(_fnormal));\n"
 		"vec3 normVector = TBN * (texture(normalmap,_ftexcoords).rgb * 2.0 - 1.0);\n"		
 
