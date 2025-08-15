@@ -107,12 +107,8 @@ namespace fgr {
 
 		// LIGHTING CALCULATIONS : 
 
-		"vec3 result = vec3(0.f, 0.f, 0.f);\n"
-
-		//Ambient 
-		"vec3 ambientcol = vec3(1.0, 1.0, 1.0);\n"
-		"float ambientsth = 0.03;\n"
-		"result += ambientcol * ambientsth * texture(diffusemap,_ftexcoords).rgb;\n"
+		"vec3 result = vec3(0,0,0);\n"
+		"vec3 diffuseColor = pow(texture(diffusemap,_ftexcoords).rgb, vec3(2.2));\n"
 
 		// Directional Light Calculations : 
 
@@ -120,7 +116,7 @@ namespace fgr {
 		// Diffuse 
 		"\tvec3 lightvector = normalize(-vec3(d_light[a].x, d_light[a].y, d_light[a].z));\n"
 		"\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
-		"\tvec3 diffres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * diffsth * texture(diffusemap,_ftexcoords).rgb;\n"
+		"\tvec3 diffres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * diffsth * diffuseColor;\n"
 		"\tresult += diffres;\n"
 		"}\n"		
 
@@ -131,7 +127,7 @@ namespace fgr {
 		// Diffuse
 		"\tvec3 lightvector = normalize(vec3(p_light[a].x, p_light[a].y, p_light[a].z) - _fragPos);\n"
 		"\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
-		"\tvec3 diffres = vec3(p_light[a].r, p_light[a].g, p_light[a].b) * diffsth * texture(diffusemap,_ftexcoords).rgb;\n"
+		"\tvec3 diffres = vec3(p_light[a].r, p_light[a].g, p_light[a].b) * diffsth * diffuseColor;\n"
 		"\tresult += diffres;\n"
 		"}\n"
 		
@@ -146,7 +142,7 @@ namespace fgr {
 		// Diffuse 
 		"\t\tvec3 lightvector = -light_dir;\n"
 		"\t\tfloat diffsth = max(dot(normVector,lightvector),0.0);\n"
-		"\t\tvec3 diffres = vec3(s_light[a].r, s_light[a].g, s_light[a].b) * diffsth * texture(diffusemap,_ftexcoords).rgb;\n"
+		"\t\tvec3 diffres = vec3(s_light[a].r, s_light[a].g, s_light[a].b) * diffsth * diffuseColor;\n"
 		"\t\tresult += diffres;\n"
 		"}\n"
 		"}\n"
