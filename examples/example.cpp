@@ -118,7 +118,7 @@ int main()
     
 		//Draw Models : 		
 		camera.use();
-		model.Draw();	
+		model.Render();	
 		fgr::default_window.update();
 
 		_sleep(1000.f / (float)w_attribs.fps);
