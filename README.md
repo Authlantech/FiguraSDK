@@ -25,4 +25,4 @@ An example program can be found in `examples` folder.
 ## Licenses
 Licenses of used libraries can be found in `Additional Licenses` folder.
 ### Used Assets
-* “Dirty stones pile” by matousekfoto, available at [Sketchfab](https://sketchfab.com/3d-models/dirty-stones-pile-893e64e62f414b439672a8770dd2869d), Licensed under [CC BY 4.0.](https://creativecommons.org/licenses/by/4.0/legalcode.en).
+* “Dirty stones pile” by matousekfoto, available at [Sketchfab](https://sketchfab.com/3d-models/dirty-stones-pile-893e64e62f414b439672a8770dd2869d), Licensed under [CC BY 4.0.](https://creativecommons.org/licenses/by/4.0/legalcode.en) - <ins>Modified from original.<ins/>

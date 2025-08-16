@@ -50,13 +50,13 @@ int main()
 
 	//Create directional light	
 	fgr::PointLight light;
-	light.create({ 20,0,20 }, { 1,1,1 });
+	light.create({ 0,20,100 }, { 1,1,1 });
 
 	//Load a model : 
 	fgr::Model model; 
 	model.Load("..\\assets\\Dirty stones pile\\ystone-pile.fbx");
 	model.set_position({ 0,0,-10 });
-	model.rotate({ -1,0,0 }, 40);
+	model.scale(0.1f);
 
 	//Window loop 
 	while (fgr::default_window.is_open())
