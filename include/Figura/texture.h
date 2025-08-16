@@ -1,5 +1,6 @@
 #pragma once
 #include <glad/glad.h>
+#include <iostream>
 
 namespace fgr {
 
@@ -7,7 +8,7 @@ namespace fgr {
 	{
 	private:
 		// Texture attribs & data 
-		unsigned char* pixels = nullptr; 
+		unsigned char* pixels = NULL; 
 		int width, height, nrChannels;		
 
 		// OpenGL : 

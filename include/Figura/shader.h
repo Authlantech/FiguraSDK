@@ -95,15 +95,21 @@ namespace fgr {
 		"layout (binding = 1) uniform sampler2D normalmap;\n"
 
 		// OUTPUTS : 
-		"out vec4 final_color;\n"
-
-
-		// Calculating the normal : 
-		"mat3 TBN = mat3(normalize(_ftangent),normalize(_fbittangent),normalize(_fnormal));\n"
-		"vec3 normVector = TBN * (texture(normalmap,_ftexcoords).rgb * 2.0 - 1.0);\n"		
+		"out vec4 final_color;\n"		
 
 		// MAIN 
 		"void main() {\n"
+
+		// Calculating the normal : 
+		"vec3 normVector = vec3(0,0,0);\n"
+		"mat3 TBN = mat3(normalize(_ftangent),normalize(_fbittangent),normalize(_fnormal));\n"
+
+		"if(texture(normalmap,_ftexcoords).rgb == vec3(0,0,0)) "
+		"normVector = _fnormal;\n"
+
+		"else {\n"
+		"normVector = TBN * (texture(normalmap,_ftexcoords).rgb * 2.0 - 1.0);\n"
+		"}\n"
 
 		// LIGHTING CALCULATIONS : 
 
