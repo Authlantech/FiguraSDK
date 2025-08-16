@@ -1,6 +1,7 @@
 #pragma once 
-#include "mesh.h"
-#include "shader.h"
+#include <Figura/mesh.h>
+#include <Figura/shader.h>
+#include <Figura/texture.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -9,10 +10,13 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include <iostream> 
+#include <iostream>
+#include <exception>
+#include <queue>
 #include <thread>
 #include <future>
 #include <vector>
+#include <unordered_map>
 #include <map>
 #include <string> 
 
@@ -21,6 +25,9 @@ namespace fgr {
 	class Model {
 	private:
 		std::vector<fgr::Mesh> meshes;
+		std::unordered_map<std::string,fgr::Texture*>  diffuse_maps;
+		std::unordered_map<std::string, fgr::Texture*> normal_maps;
+
 		glm::mat4 translation = glm::mat4(1.f);
 		glm::mat4 rotation = glm::mat4(1.f);
 		glm::mat4 scaling = glm::mat4(1.f);
@@ -28,7 +35,7 @@ namespace fgr {
 		glm::vec3 position = glm::vec3(0.f, 0.f, 0.f);
 
 		std::future<void> loading_thread_checker;
-
+		static void load_model(fgr::Model* model, const char* path, std::promise<void> p);
 	public:
 
 		void add_mesh(Mesh mesh);
@@ -45,7 +52,6 @@ namespace fgr {
 		void Load(const char* path);
 		void Draw();
 
-		friend class fgr::Model;
 	};
 
 }

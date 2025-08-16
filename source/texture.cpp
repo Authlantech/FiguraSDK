@@ -8,7 +8,7 @@ using namespace fgr;
 
 void Texture::generate()
 {
-	if (pixels != NULL)
+	if (pixels != NULL && _id == 0)
 	{
 		glGenTextures(1, &_id);		
 		glActiveTexture(GL_TEXTURE0);
@@ -21,9 +21,9 @@ void Texture::generate()
 
 		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 		glGenerateMipmap(GL_TEXTURE_2D);
-				
-		// stbi_image_free(pixels);
-		pixels = NULL;		
+
+		stbi_image_free(pixels);
+		pixels = NULL;
 	}
 }
 
@@ -37,7 +37,7 @@ void Texture::reset()
 
 	if (pixels != NULL)
 	{		
-		stbi_image_free(pixels); 
+		stbi_image_free(pixels);
 		pixels = NULL;
 	}	
 }
@@ -65,8 +65,10 @@ void Texture::unbind(GLenum texture_unit)
 
 void Texture::LoadFromFile(const char* path)
 {	
+	reset();
 	stbi_set_flip_vertically_on_load(true);
-	pixels = stbi_load(path, &width, &height, &nrChannels,3); 
+	pixels = stbi_load(path, &width, &height, &nrChannels,3);
+	if (!pixels) pixels = NULL;
 }
 
 bool Texture::ready_for_rendering()

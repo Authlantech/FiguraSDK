@@ -16,9 +16,6 @@ void Mesh::generate()
 		ib.generate(); 
 		ib.bind();
 		ib.data(indicies.data(), indicies.size() * sizeof(unsigned int));
-		
-		diffusemap.generate(); 
-		normalmap.generate();		
 
 		verticies.clear(); 
 		indicies.clear(); 				
@@ -35,8 +32,8 @@ void Mesh::reset()
 		vertexarray = 0;
 	}
 
-	diffusemap.reset();
-	normalmap.reset();
+	diffuse_map_name.clear(); 
+	normal_map_name.clear();
 
 	verticies.clear(); 
 	indicies.clear();
@@ -45,29 +42,26 @@ void Mesh::reset()
 void Mesh::load(
 	std::vector<fgr::vertex> verticies,
 	std::vector<unsigned int> indicies,
-	Texture diffusemap,
-	Texture normalmap
+	std::string diffuse_map_name,
+	std::string normal_map_name
 )
 {
 	this->reset();
 
-	this->diffusemap = diffusemap; 
-	this->normalmap = normalmap;
-
 	this->verticies = verticies; 
 	this->indicies = indicies; 
+
+	this->diffuse_map_name = diffuse_map_name; 
+	this->normal_map_name = normal_map_name;
 }
 
 void Mesh::Draw()
 {	
 	generate();
 
-	if (vertexarray != 0 && verticies.empty())
+	if (vertexarray != 0)
 	{
 		glBindVertexArray(vertexarray);
-		diffusemap.bind(GL_TEXTURE0);
-		normalmap.bind(GL_TEXTURE1);
-		
 		glDrawElements(GL_TRIANGLES, ib.get_count(), GL_UNSIGNED_INT, nullptr);		
 	}
 }
