@@ -48,6 +48,9 @@ namespace fgr
 		// glEnable(GL_BLEND);
 		// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+		std::thread model_loading_thread(fgr::Model::model_loading_thread);
+		model_loading_thread.detach();
+
 	}
 
 	void RenderingWindow::clear(float red,float green,float blue,float alpha)

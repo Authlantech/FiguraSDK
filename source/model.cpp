@@ -3,6 +3,8 @@
 
 using namespace fgr;
 
+std::queue < std::tuple<fgr::Model*, const char*, std::promise<void>*> > fgr::Model::pending_loads;
+
 void processNode(aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransformation)
 {
 
@@ -33,7 +35,25 @@ void processNode(aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform
 
 }
 
-void Model::load_model(fgr::Model*model, const char*path, std::promise<void> p)
+void Model::model_loading_thread()
+{
+	do
+	{
+		if (!pending_loads.empty())
+		{
+			auto& cl = pending_loads.front();
+			load_model(std::get<0>(cl), std::get<1>(cl), std::move(std::get<2>(cl)));
+			pending_loads.pop();
+			_sleep(100);
+		}
+		else
+		{
+			_sleep(300);
+		}
+	} while (true);
+}
+
+void Model::load_model(fgr::Model*model, const char*path, std::promise<void>*p)
 {
 	std::string fpath = path;
 	std::string folder = fpath.substr(0, fpath.find_last_of('\\'));
@@ -102,7 +122,7 @@ void Model::load_model(fgr::Model*model, const char*path, std::promise<void> p)
 		Texture* texture = new Texture;
 		texture->LoadFromFile(std::string(folder + '\\' + file).c_str());
 		model->normal_maps.insert({ file, texture });
-		std::cout << "\NORMAL MAP : " << file << " is loaded!\n";
+		std::cout << "\tNORMAL MAP : " << file << " is loaded!\n";
 	}
 
 	std::cout << "\tCOMPLETE!\n\nLoading all meshes...\n";
@@ -209,7 +229,9 @@ void Model::load_model(fgr::Model*model, const char*path, std::promise<void> p)
 
 	std::cout << "\n\-----MODEL LOADED!-----\n";
 
-	p.set_value();
+	p->set_value();
+	p->~promise(); 
+
 	return;
 }
 
@@ -236,10 +258,9 @@ void Model::rotate(glm::vec3 v, float angle)
 
 void Model::Load(const char* path)
 {
-	std::promise<void> loading_thread_signal;
-	loading_thread_checker = loading_thread_signal.get_future();
-
-	load_model(this, path, std::move(loading_thread_signal));
+	std::promise<void>* loading_thread_signal = new std::promise<void>;
+	loading_thread_checker = loading_thread_signal->get_future();
+	pending_loads.push({ this, path, loading_thread_signal });
 }
 
 glm::vec3 Model::get_position()
@@ -262,7 +283,7 @@ std::vector<fgr::Mesh> Model::get_meshes()
 	return meshes;
 }
 
-void Model::Draw()
+void Model::Render()
 {	
 
 	if (loading_thread_checker.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)

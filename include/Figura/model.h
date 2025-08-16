@@ -35,8 +35,11 @@ namespace fgr {
 		glm::vec3 position = glm::vec3(0.f, 0.f, 0.f);
 
 		std::future<void> loading_thread_checker;
-		static void load_model(fgr::Model* model, const char* path, std::promise<void> p);
+
+		static std::queue < std::tuple<fgr::Model*, const char*, std::promise<void>*>> pending_loads;
+		static void load_model(fgr::Model* model, const char* path, std::promise<void>* p);
 	public:
+		static void model_loading_thread();
 
 		void add_mesh(Mesh mesh);
 		void set_position(glm::vec3 position);
@@ -50,8 +53,7 @@ namespace fgr {
 		std::vector<fgr::Mesh> get_meshes();
 
 		void Load(const char* path);
-		void Draw();
-
+		void Render();
 	};
 
 }
