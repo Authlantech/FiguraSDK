@@ -32,8 +32,11 @@ void Mesh::reset()
 		vertexarray = 0;
 	}
 
-	diffuse_map_name.clear(); 
+	albedo_map_name.clear(); 
 	normal_map_name.clear();
+	metalness_map_name.clear();
+	roughness_map_name.clear();
+	ao_map_name.clear();
 
 	verticies.clear(); 
 	indicies.clear();
@@ -42,8 +45,11 @@ void Mesh::reset()
 void Mesh::load(
 	std::vector<fgr::vertex> verticies,
 	std::vector<unsigned int> indicies,
-	std::string diffuse_map_name,
-	std::string normal_map_name
+	std::string albedo_map_name,
+	std::string normal_map_name,
+	std::string metalnessmapname,
+	std::string roughnessmapname,
+	std::string aomapname
 )
 {
 	this->reset();
@@ -51,11 +57,14 @@ void Mesh::load(
 	this->verticies = verticies; 
 	this->indicies = indicies; 
 
-	this->diffuse_map_name = diffuse_map_name; 
+	this->albedo_map_name = albedo_map_name; 
 	this->normal_map_name = normal_map_name;
+	this->metalness_map_name = metalnessmapname;
+	this->roughness_map_name = roughnessmapname;
+	this->ao_map_name = aomapname;
 }
 
-void Mesh::Draw()
+void Mesh::Render()
 {	
 	generate();
 

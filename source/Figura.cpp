@@ -15,12 +15,18 @@ namespace fgr
 			exit(-1);
 		}
 
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE); 
+
 		// Create window
 		window = glfwCreateWindow(width,height,title, 0, 0);
 		glfwMakeContextCurrent(window);
 
 		// Init glad 
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+		std::cout << "" << glGetString(GL_VERSION) << "\n\n";
 
 		glViewport(0, 0,width,height);
 
@@ -34,7 +40,7 @@ namespace fgr
 		normal_shader.create();
 		mesh_shader.create();
 
-		model_shader.load_from_buffer(default_vs, default_fs);
+		model_shader.load_from_buffer(default_vs, pbrShader);
 		normal_shader.load_from_buffer(normal_vs, normal_fs, normal_gs);
 		mesh_shader.load_from_buffer(mesh_vs, mesh_fs, mesh_gs);
 

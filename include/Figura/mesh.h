@@ -16,8 +16,11 @@ namespace fgr {
 		std::vector<fgr::vertex> verticies; 
 		std::vector<unsigned int> indicies; 		
 	public : 	
-		std::string diffuse_map_name; 
+		std::string albedo_map_name;
 		std::string normal_map_name;
+		std::string metalness_map_name;
+		std::string roughness_map_name;
+		std::string ao_map_name;
 	private : 
 		// OpenGL objects : 
 		unsigned int vertexarray = 0;
@@ -30,11 +33,14 @@ namespace fgr {
 		void load(
 			std::vector<fgr::vertex> verticies,
 			std::vector<unsigned int>indicies,
-			std::string diffuse_map_name,
-			std::string normal_map_name
+			std::string albedo_map_name,
+			std::string normal_map_name,
+			std::string metalnessmapname,
+			std::string roughnessmapname,
+			std::string aomapname
 		);
 
-		void Draw();
+		void Render();
 	};
 
 }

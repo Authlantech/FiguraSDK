@@ -53,84 +53,157 @@ void Model::model_loading_thread()
 	} while (true);
 }
 
-void Model::load_model(fgr::Model*model, const char*path, std::promise<void>*p)
+void Model::load_model(fgr::Model* model, const char* path, std::promise<void>* p)
 {
 	std::string fpath = path;
-	std::string folder = fpath.substr(0, fpath.find_last_of('\\'));
-	std::string file_name = fpath.substr(fpath.find_last_of('\\') + 1, fpath.size());
+	std::string folder = fpath.substr(0, fpath.find_last_of("\\"));
+	std::string file_name = fpath.substr(fpath.find_last_of("\\") + 1);
 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(fpath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
 
-	if (scene == nullptr) return;
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+		std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+		p->set_value();
+		return;
+	}
 
-	// Extracting all texture file names : 
-	std::vector<std::string> diffuse_texture_names;
+	// Extracting all texture file names: 
+	std::vector<std::string> albedo_texture_names;
 	std::vector<std::string> normal_texture_names;
+	std::vector<std::string> metalness_texture_names;
+	std::vector<std::string> roughness_texture_names;
+	std::vector<std::string> ao_texture_names;
 
-	std::cout << "\nBEGINING TO LOAD MODEL : " << file_name;
+	std::cout << "\nBEGINNING TO LOAD MODEL : " << file_name;
 	std::cout << "\n\nDetecting all textures...\n\n";
 
-	for (int a = 0; a < scene->mNumMaterials; a++)
+	for (unsigned int a = 0; a < scene->mNumMaterials; a++)
 	{
 		aiMaterial* m = scene->mMaterials[a];
-		aiString diffusemapname;
-		aiString normalmapname;
+		aiString mapname;
 
-		// Extracting diffuse maps : 
-		if (m->GetTexture(aiTextureType_DIFFUSE, 0, &diffusemapname) == AI_SUCCESS)
+		// Extracting albedo maps (checking for PBR base color first, then diffuse): 
+		if (m->GetTexture(aiTextureType_BASE_COLOR, 0, &mapname) == AI_SUCCESS || m->GetTexture(aiTextureType_DIFFUSE, 0, &mapname) == AI_SUCCESS)
 		{
-			std::string name = std::string(diffusemapname.C_Str());
-			if (name.find("\\") != std::string::npos) name = name.substr(name.find_last_of('\\') + 1, name.size());
-			else if (name.find("/") != std::string::npos) name = name.substr(name.find_last_of('/') + 1, name.size());
+			std::string name = std::string(mapname.C_Str());
+			if (name.find('\\') != std::string::npos) name = name.substr(name.find_last_of('\\') + 1);
+			else if (name.find('/') != std::string::npos) name = name.substr(name.find_last_of('/') + 1);
 
-			if (std::find(diffuse_texture_names.begin(), diffuse_texture_names.end(), name) == diffuse_texture_names.end())
+			if (std::find(albedo_texture_names.begin(), albedo_texture_names.end(), name) == albedo_texture_names.end())
 			{
-				std::cout << "\tDIFFUSE MAP : " << name << " detected\n";
-				diffuse_texture_names.push_back(name);
+				std::cout << "\tALBEDO MAP : " << name << " detected\n";
+				albedo_texture_names.push_back(name);
 			}
 		}
 
-		// Extracting normal maps : 
-		if (m->GetTexture(aiTextureType_NORMALS, 0, &normalmapname) == AI_SUCCESS)
+		// Extracting normal maps: 
+		if (m->GetTexture(aiTextureType_NORMALS, 0, &mapname) == AI_SUCCESS)
 		{
-			std::string name = std::string(normalmapname.C_Str());
-			if (name.find("\\") != std::string::npos) name = name.substr(name.find_last_of('\\') + 1, name.size());
-			else if (name.find("/") != std::string::npos) name = name.substr(name.find_last_of('/') + 1, name.size());
+			std::string name = std::string(mapname.C_Str());
+			if (name.find('\\') != std::string::npos) name = name.substr(name.find_last_of('\\') + 1);
+			else if (name.find('/') != std::string::npos) name = name.substr(name.find_last_of('/') + 1);
 
 			if (std::find(normal_texture_names.begin(), normal_texture_names.end(), name) == normal_texture_names.end())
 			{
-				std::cout << "\t\tNORMAL MAP : " << name << " detected\n";
+				std::cout << "\tNORMAL MAP : " << name << " detected\n";
 				normal_texture_names.push_back(name);
+			}
+		}
+
+		// Extracting metalness maps:
+		if (m->GetTexture(aiTextureType_METALNESS, 0, &mapname) == AI_SUCCESS)
+		{
+			std::string name = std::string(mapname.C_Str());
+			if (name.find('\\') != std::string::npos) name = name.substr(name.find_last_of('\\') + 1);
+			else if (name.find('/') != std::string::npos) name = name.substr(name.find_last_of('/') + 1);
+
+			if (std::find(metalness_texture_names.begin(), metalness_texture_names.end(), name) == metalness_texture_names.end())
+			{
+				std::cout << "\tMETALNESS MAP : " << name << " detected\n";
+				metalness_texture_names.push_back(name);
+			}
+		}
+
+		// Extracting roughness maps:
+		if (m->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &mapname) == AI_SUCCESS)
+		{
+			std::string name = std::string(mapname.C_Str());
+			if (name.find('\\') != std::string::npos) name = name.substr(name.find_last_of('\\') + 1);
+			else if (name.find('/') != std::string::npos) name = name.substr(name.find_last_of('/') + 1);
+
+			if (std::find(roughness_texture_names.begin(), roughness_texture_names.end(), name) == roughness_texture_names.end())
+			{
+				std::cout << "\tROUGHNESS MAP : " << name << " detected\n";
+				roughness_texture_names.push_back(name);
+			}
+		}
+
+		// Extracting AO maps:
+		if (m->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &mapname) == AI_SUCCESS)
+		{
+			std::string name = std::string(mapname.C_Str());
+			if (name.find('\\') != std::string::npos) name = name.substr(name.find_last_of('\\') + 1);
+			else if (name.find('/') != std::string::npos) name = name.substr(name.find_last_of('/') + 1);
+
+			if (std::find(ao_texture_names.begin(), ao_texture_names.end(), name) == ao_texture_names.end())
+			{
+				std::cout << "\tAO MAP : " << name << " detected\n";
+				ao_texture_names.push_back(name);
 			}
 		}
 	}
 
 	std::cout << "\tCOMPLETE!\n\nLoading all textures...\n\n";
 
-	// Loading all textures : 
-	for (std::string file : diffuse_texture_names)
+	// Loading all textures: 
+	for (std::string file : albedo_texture_names)
 	{
 		Texture* texture = new Texture;
-		texture->LoadFromFile(std::string(folder + '\\' + file).c_str());
-		model->diffuse_maps.insert({ file, texture });
-		std::cout << "\tDIFFUSE MAP : " << file << " is loaded!\n";
+		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
+		model->albedo_maps.insert({ file, texture }); // Assuming model->albedo_maps exists
+		std::cout << "\tALBEDO MAP : " << file << " is loaded!\n";
 	}
 
 	for (std::string file : normal_texture_names)
 	{
 		Texture* texture = new Texture;
-		texture->LoadFromFile(std::string(folder + '\\' + file).c_str());
+		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
 		model->normal_maps.insert({ file, texture });
 		std::cout << "\tNORMAL MAP : " << file << " is loaded!\n";
 	}
 
-	std::cout << "\tCOMPLETE!\n\nLoading all meshes...\n";
+	for (std::string file : metalness_texture_names)
+	{
+		Texture* texture = new Texture;
+		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
+		model->metalness_maps.insert({ file, texture }); // Assuming model->metalness_maps exists
+		std::cout << "\tMETALNESS MAP : " << file << " is loaded!\n";
+	}
+
+	for (std::string file : roughness_texture_names)
+	{
+		Texture* texture = new Texture;
+		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
+		model->roughness_maps.insert({ file, texture }); // Assuming model->roughness_maps exists
+		std::cout << "\tROUGHNESS MAP : " << file << " is loaded!\n";
+	}
+
+	for (std::string file : ao_texture_names)
+	{
+		Texture* texture = new Texture;
+		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
+		model->ao_maps.insert({ file, texture }); // Assuming model->ao_maps exists
+		std::cout << "\tAO MAP : " << file << " is loaded!\n";
+	}
 
 	processNode(scene->mRootNode, scene, aiMatrix4x4());
 
-	// Loading all meshes : 
-	for (int a = 0; a < scene->mNumMeshes; a++)
+	std::cout << "\tCOMPLETE!\n\nLoading all meshes...\n";
+
+	// Loading all meshes: 	
+
+	for (unsigned int a = 0; a < scene->mNumMeshes; a++)
 	{
 		Mesh mesh;
 		aiMesh* currentMesh = scene->mMeshes[a];
@@ -138,7 +211,7 @@ void Model::load_model(fgr::Model*model, const char*path, std::promise<void>*p)
 		std::cout << "\n\tMESH : " << currentMesh->mName.C_Str() << "\n\tProperties \n";
 
 		std::vector<vertex> vertices;
-		for (int b = 0; b < scene->mMeshes[a]->mNumVertices; b++)
+		for (unsigned int b = 0; b < currentMesh->mNumVertices; b++)
 		{
 			vertex v;
 			v.pos[0] = currentMesh->mVertices[b].x;
@@ -150,15 +223,13 @@ void Model::load_model(fgr::Model*model, const char*path, std::promise<void>*p)
 				v.texture_coordinates[0] = currentMesh->mTextureCoords[0][b].x;
 				v.texture_coordinates[1] = currentMesh->mTextureCoords[0][b].y;
 			}
-
-			if (scene->mMeshes[a]->HasNormals())
+			if (currentMesh->HasNormals())
 			{
 				v.normal[0] = currentMesh->mNormals[b].x;
 				v.normal[1] = currentMesh->mNormals[b].y;
 				v.normal[2] = currentMesh->mNormals[b].z;
 			}
-
-			if (scene->mMeshes[a]->HasTangentsAndBitangents())
+			if (currentMesh->HasTangentsAndBitangents())
 			{
 				v.tangent[0] = currentMesh->mTangents[b].x;
 				v.tangent[1] = currentMesh->mTangents[b].y;
@@ -168,14 +239,13 @@ void Model::load_model(fgr::Model*model, const char*path, std::promise<void>*p)
 				v.bittangent[1] = currentMesh->mBitangents[b].y;
 				v.bittangent[2] = currentMesh->mBitangents[b].z;
 			}
-
 			vertices.push_back(v);
 		}
 
 		std::vector<unsigned int> indices;
-		for (int b = 0; b < currentMesh->mNumFaces; b++)
+		for (unsigned int b = 0; b < currentMesh->mNumFaces; b++)
 		{
-			for (int c = 0; c < currentMesh->mFaces[b].mNumIndices; c++)
+			for (unsigned int c = 0; c < currentMesh->mFaces[b].mNumIndices; c++)
 			{
 				indices.push_back(currentMesh->mFaces[b].mIndices[c]);
 			}
@@ -184,54 +254,76 @@ void Model::load_model(fgr::Model*model, const char*path, std::promise<void>*p)
 		std::cout << "\t\tVertex count : " << vertices.size() << "\n\t\tIndex count : " << indices.size() << "\n";
 
 		aiMaterial* material = scene->mMaterials[currentMesh->mMaterialIndex];
-		aiString diffusemapname;
-		aiString normalmapname;
+		aiString mapname; // Generic string for any map type
 
-		std::string diffusemapname_ = "";
+		std::string albedomapname_ = "";
 		std::string normalmapname_ = "";
+		std::string metalnessmapname_ = "";
+		std::string roughnessmapname_ = "";
+		std::string aomapname_ = "";
 
-		// Extracting diffuse map name if exists 				
-		if (material->GetTexture(aiTextureType_DIFFUSE, 0, &diffusemapname) == AI_SUCCESS) {
-			std::string dmn(diffusemapname.C_Str());
-			if (dmn.find('\\') != std::string::npos) {
-				dmn = dmn.substr(dmn.find_last_of('\\') + 1, dmn.size());
-			}
-			else if (dmn.find('/') != std::string::npos) {
-				dmn = dmn.substr(dmn.find_last_of('/') + 1, dmn.size());
-			}
-			diffusemapname_ = dmn;
-			std::cout << "\t\tDiffuse Map : " << diffusemapname_ << std::endl;
+		// Extracting albedo map name if exists 
+		if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &mapname) == AI_SUCCESS || material->GetTexture(aiTextureType_DIFFUSE, 0, &mapname) == AI_SUCCESS) {
+			std::string dmn(mapname.C_Str());
+			if (dmn.find('\\') != std::string::npos) dmn = dmn.substr(dmn.find_last_of('\\') + 1);
+			else if (dmn.find('/') != std::string::npos) dmn = dmn.substr(dmn.find_last_of('/') + 1);
+			albedomapname_ = dmn;
+			std::cout << "\t\tAlbedo Map : " << albedomapname_ << std::endl;
 		}
 
 		// Extracting normal map name if exists
-		if (material->GetTexture(aiTextureType_NORMALS, 0, &normalmapname) == AI_SUCCESS) {
-			std::string nmn(normalmapname.C_Str());
-			if (nmn.find('\\') != std::string::npos) {
-				nmn = nmn.substr(nmn.find_last_of('\\') + 1, nmn.size());
-			}
-			else if (nmn.find('/') != std::string::npos) {
-				nmn = nmn.substr(nmn.find_last_of('/') + 1, nmn.size());
-			}
+		if (material->GetTexture(aiTextureType_NORMALS, 0, &mapname) == AI_SUCCESS) {
+			std::string nmn(mapname.C_Str());
+			if (nmn.find('\\') != std::string::npos) nmn = nmn.substr(nmn.find_last_of('\\') + 1);
+			else if (nmn.find('/') != std::string::npos) nmn = nmn.substr(nmn.find_last_of('/') + 1);
 			normalmapname_ = nmn;
 			std::cout << "\t\tNormal Map : " << normalmapname_ << std::endl;
-
 		}
 
+		// Extracting metalness map name if exists
+		if (material->GetTexture(aiTextureType_METALNESS, 0, &mapname) == AI_SUCCESS) {
+			std::string mn(mapname.C_Str());
+			if (mn.find('\\') != std::string::npos) mn = mn.substr(mn.find_last_of('\\') + 1);
+			else if (mn.find('/') != std::string::npos) mn = mn.substr(mn.find_last_of('/') + 1);
+			metalnessmapname_ = mn;
+			std::cout << "\t\tMetalness Map : " << metalnessmapname_ << std::endl;
+		}
+
+		// Extracting roughness map name if exists
+		if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &mapname) == AI_SUCCESS) {
+			std::string rn(mapname.C_Str());
+			if (rn.find('\\') != std::string::npos) rn = rn.substr(rn.find_last_of('\\') + 1);
+			else if (rn.find('/') != std::string::npos) rn = rn.substr(rn.find_last_of('/') + 1);
+			roughnessmapname_ = rn;
+			std::cout << "\t\tRoughness Map : " << roughnessmapname_ << std::endl;
+		}
+
+		// Extracting AO map name if exists
+		if (material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &mapname) == AI_SUCCESS) {
+			std::string an(mapname.C_Str());
+			if (an.find('\\') != std::string::npos) an = an.substr(an.find_last_of('\\') + 1);
+			else if (an.find('/') != std::string::npos) an = an.substr(an.find_last_of('/') + 1);
+			aomapname_ = an;
+			std::cout << "\t\tAO Map : " << aomapname_ << std::endl;
+		}
+
+		// Assuming mesh.load is updated to take the new map names
 		mesh.load(
 			vertices,
 			indices,
-			diffusemapname_,
-			normalmapname_
+			albedomapname_,
+			normalmapname_,
+			metalnessmapname_,
+			roughnessmapname_,
+			aomapname_
 		);
 
 		model->add_mesh(mesh);
 	}
 
-	std::cout << "\n\-----MODEL LOADED!-----\n";
+	std::cout << "\n-----MODEL LOADED!-----\n";
 
 	p->set_value();
-	p->~promise(); 
-
 	return;
 }
 
@@ -288,10 +380,19 @@ void Model::Render()
 
 	if (loading_thread_checker.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
 	{
-		for (auto& d : diffuse_maps)
+		for (auto& d : albedo_maps)
 			d.second->generate();
 
 		for (auto& n : normal_maps)
+			n.second->generate();
+
+		for (auto& n : metalness_maps)
+			n.second->generate();
+
+		for (auto& n : roughness_maps)
+			n.second->generate();
+
+		for (auto& n : ao_maps)
 			n.second->generate();
 
 		glm::mat4 modelMatrix = translation * rotation * scaling;
@@ -302,10 +403,13 @@ void Model::Render()
 		{
 			fgr::Texture::unbind(GL_TEXTURE0);
 			fgr::Texture::unbind(GL_TEXTURE1);
+			fgr::Texture::unbind(GL_TEXTURE2);
+			fgr::Texture::unbind(GL_TEXTURE3);
+			fgr::Texture::unbind(GL_TEXTURE4);
 
-			if (diffuse_maps.find(meshes[a].diffuse_map_name) != diffuse_maps.end())
+			if (albedo_maps.find(meshes[a].albedo_map_name) != albedo_maps.end())
 			{
-				diffuse_maps.find(meshes[a].diffuse_map_name)->second->bind(GL_TEXTURE0);
+				albedo_maps.find(meshes[a].albedo_map_name)->second->bind(GL_TEXTURE0);
 			}
 
 			if (normal_maps.find(meshes[a].normal_map_name) != normal_maps.end())
@@ -313,7 +417,22 @@ void Model::Render()
 				normal_maps.find(meshes[a].normal_map_name)->second->bind(GL_TEXTURE1);
 			}
 
-			meshes[a].Draw();
+			if (metalness_maps.find(meshes[a].metalness_map_name) != metalness_maps.end())
+			{
+				metalness_maps.find(meshes[a].metalness_map_name)->second->bind(GL_TEXTURE2);
+			}
+
+			if (roughness_maps.find(meshes[a].roughness_map_name) != roughness_maps.end())
+			{
+				roughness_maps.find(meshes[a].roughness_map_name)->second->bind(GL_TEXTURE3);
+			}
+
+			if (ao_maps.find(meshes[a].ao_map_name) != ao_maps.end())
+			{
+				ao_maps.find(meshes[a].ao_map_name)->second->bind(GL_TEXTURE4);
+			}
+
+			meshes[a].Render();
 		}
 	}
 

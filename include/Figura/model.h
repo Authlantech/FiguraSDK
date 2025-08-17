@@ -23,10 +23,16 @@
 namespace fgr {
 
 	class Model {
+
 	private:
+
 		std::vector<fgr::Mesh> meshes;
-		std::unordered_map<std::string,fgr::Texture*>  diffuse_maps;
-		std::unordered_map<std::string, fgr::Texture*> normal_maps;
+
+		std::unordered_map<std::string, fgr::Texture*>	albedo_maps;
+		std::unordered_map<std::string, fgr::Texture*>	normal_maps;
+		std::unordered_map<std::string, fgr::Texture*>	metalness_maps;
+		std::unordered_map<std::string, fgr::Texture*>	roughness_maps;
+		std::unordered_map<std::string, fgr::Texture*>	ao_maps;
 
 		glm::mat4 translation = glm::mat4(1.f);
 		glm::mat4 rotation = glm::mat4(1.f);
@@ -39,6 +45,9 @@ namespace fgr {
 		static std::queue < std::tuple<fgr::Model*, const char*, std::promise<void>*>> pending_loads;
 		static void load_model(fgr::Model* model, const char* path, std::promise<void>* p);
 	public:
+		Model() {};
+		~Model() {}; 
+
 		static void model_loading_thread();
 
 		void add_mesh(Mesh mesh);
