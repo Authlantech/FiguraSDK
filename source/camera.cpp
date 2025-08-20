@@ -62,7 +62,7 @@ OrthographicAttribs Camera::give_orthographic_attribs()
 
 void Camera::use()
 {
-	fgr::default_window.current_shader.uniformvec3("viewPos", position.x, position.y, position.z);
-	fgr::default_window.current_shader.uniformmat4f("projectionMatrix", projectionMatrix); 
-	fgr::default_window.current_shader.uniformmat4f("viewMatrix", viewMatrix);
+	fgr::graphic_engine.current_shader->uniformvec3("viewPos", position.x, position.y, position.z);
+	fgr::graphic_engine.current_shader->uniformmat4f("projectionMatrix", projectionMatrix); 
+	fgr::graphic_engine.current_shader->uniformmat4f("viewMatrix", viewMatrix);
 }

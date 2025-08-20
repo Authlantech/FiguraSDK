@@ -2,7 +2,7 @@
 
 using namespace fgr;
 
-void Shader::create()
+Shader::Shader()
 {
 	program = glCreateProgram(); 
 	vshader = glCreateShader(GL_VERTEX_SHADER); 
@@ -10,12 +10,12 @@ void Shader::create()
 	gshader = glCreateShader(GL_GEOMETRY_SHADER);
 }
 
-void Shader::destroy()
+Shader::~Shader()
 {
-	glDeleteShader(vshader); 
+	glDeleteShader(vshader);
 	glDeleteShader(fshader);
 	glDeleteShader(gshader);
-	glDeleteProgram(program); 
+	glDeleteProgram(program);
 }
 
 void Shader::load_from_buffer(

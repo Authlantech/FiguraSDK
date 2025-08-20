@@ -29,6 +29,8 @@ namespace fgr {
 
 		void generate();
 	public:
+		Mesh() {}; 
+		~Mesh() { reset(); };
 		void reset();
 		void load(
 			std::vector<fgr::vertex> verticies,

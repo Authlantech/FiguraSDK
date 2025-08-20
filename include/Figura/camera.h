@@ -1,7 +1,6 @@
 #pragma once 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "shader.h"
 
 namespace fgr {
 
@@ -36,6 +35,9 @@ namespace fgr {
 		OrthographicAttribs o_attribs = { 0 };
 
 	public:
+		Camera() {}; 
+		~Camera() {};
+
 		void create_perspective(float fov, float aspect, float zNear, float zFar);
 		void create_ortho(float left,float right,float bottom,float top,float near,float far);
 

@@ -15,6 +15,8 @@ namespace fgr {
 		unsigned int _id = 0; 		
 
 	public:		
+		Texture() {}; 
+		~Texture() { reset(); };
 
 		void LoadFromFile(const char* path); 		
 

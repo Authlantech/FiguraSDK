@@ -3,7 +3,7 @@
 
 using namespace fgr;
 
-std::queue < std::tuple<fgr::Model*, const char*, std::promise<void>*> > fgr::Model::pending_loads;
+std::queue < std::tuple<std::shared_ptr<fgr::Model>, const char*, std::promise<void>* >> fgr::Model::pending_loads;
 
 void processNode(aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransformation)
 {
@@ -42,7 +42,7 @@ void Model::model_loading_thread()
 		if (!pending_loads.empty())
 		{
 			auto& cl = pending_loads.front();
-			load_model(std::get<0>(cl), std::get<1>(cl), std::move(std::get<2>(cl)));
+			load_model(std::get<0>(cl), std::get<1>(cl), std::get<2>(cl));
 			pending_loads.pop();
 			_sleep(100);
 		}
@@ -53,7 +53,7 @@ void Model::model_loading_thread()
 	} while (true);
 }
 
-void Model::load_model(fgr::Model* model, const char* path, std::promise<void>* p)
+void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path, std::promise<void>* p)
 {
 	std::string fpath = path;
 	std::string folder = fpath.substr(0, fpath.find_last_of("\\"));
@@ -64,7 +64,6 @@ void Model::load_model(fgr::Model* model, const char* path, std::promise<void>* 
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
-		p->set_value();
 		return;
 	}
 
@@ -159,41 +158,41 @@ void Model::load_model(fgr::Model* model, const char* path, std::promise<void>* 
 	// Loading all textures: 
 	for (std::string file : albedo_texture_names)
 	{
-		Texture* texture = new Texture;
+		std::unique_ptr<Texture> texture(new Texture);
 		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
-		model->albedo_maps.insert({ file, texture }); // Assuming model->albedo_maps exists
+		model->albedo_maps.insert({ file, std::move(texture) }); // Assuming model->albedo_maps exists
 		std::cout << "\tALBEDO MAP : " << file << " is loaded!\n";
 	}
 
 	for (std::string file : normal_texture_names)
 	{
-		Texture* texture = new Texture;
+		std::unique_ptr<Texture> texture(new Texture);
 		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
-		model->normal_maps.insert({ file, texture });
+		model->normal_maps.insert({ file, std::move(texture) });
 		std::cout << "\tNORMAL MAP : " << file << " is loaded!\n";
 	}
 
 	for (std::string file : metalness_texture_names)
 	{
-		Texture* texture = new Texture;
+		std::unique_ptr<Texture> texture(new Texture);
 		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
-		model->metalness_maps.insert({ file, texture }); // Assuming model->metalness_maps exists
+		model->metalness_maps.insert({ file, std::move(texture) }); // Assuming model->metalness_maps exists
 		std::cout << "\tMETALNESS MAP : " << file << " is loaded!\n";
 	}
 
 	for (std::string file : roughness_texture_names)
 	{
-		Texture* texture = new Texture;
+		std::unique_ptr<Texture> texture(new Texture);
 		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
-		model->roughness_maps.insert({ file, texture }); // Assuming model->roughness_maps exists
+		model->roughness_maps.insert({ file, std::move(texture) }); // Assuming model->roughness_maps exists
 		std::cout << "\tROUGHNESS MAP : " << file << " is loaded!\n";
 	}
 
 	for (std::string file : ao_texture_names)
 	{
-		Texture* texture = new Texture;
+		std::unique_ptr<Texture> texture(new Texture);
 		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
-		model->ao_maps.insert({ file, texture }); // Assuming model->ao_maps exists
+		model->ao_maps.insert({ file, std::move(texture) }); // Assuming model->ao_maps exists
 		std::cout << "\tAO MAP : " << file << " is loaded!\n";
 	}
 
@@ -205,7 +204,7 @@ void Model::load_model(fgr::Model* model, const char* path, std::promise<void>* 
 
 	for (unsigned int a = 0; a < scene->mNumMeshes; a++)
 	{
-		Mesh mesh;
+		std::unique_ptr<Mesh> mesh(new Mesh);
 		aiMesh* currentMesh = scene->mMeshes[a];
 
 		std::cout << "\n\tMESH : " << currentMesh->mName.C_Str() << "\n\tProperties \n";
@@ -308,7 +307,7 @@ void Model::load_model(fgr::Model* model, const char* path, std::promise<void>* 
 		}
 
 		// Assuming mesh.load is updated to take the new map names
-		mesh.load(
+		mesh->load(
 			vertices,
 			indices,
 			albedomapname_,
@@ -318,18 +317,13 @@ void Model::load_model(fgr::Model* model, const char* path, std::promise<void>* 
 			aomapname_
 		);
 
-		model->add_mesh(mesh);
+		model->meshes.push_back(std::move(mesh));
 	}
 
 	std::cout << "\n-----MODEL LOADED!-----\n";
 
 	p->set_value();
 	return;
-}
-
-void Model::add_mesh(Mesh mesh)
-{
-	meshes.push_back(mesh);
 }
 
 void Model::set_position(glm::vec3 position)
@@ -348,31 +342,9 @@ void Model::rotate(glm::vec3 v, float angle)
 	rotation =  glm::rotate(glm::mat4(1.f), glm::radians(angle), glm::normalize(v)) * rotation;
 }
 
-void Model::Load(const char* path)
-{
-	std::promise<void>* loading_thread_signal = new std::promise<void>;
-	loading_thread_checker = loading_thread_signal->get_future();
-	pending_loads.push({ this, path, loading_thread_signal });
-}
-
 glm::vec3 Model::get_position()
 {
 	return position;
-}
-
-glm::mat4 Model::get_modelMatrix()
-{
-	return (translation * rotation * scaling);
-}
-
-glm::mat4 Model::get_normalMatrix()
-{
-	return glm::transpose(glm::inverse(get_modelMatrix()));
-}
-
-std::vector<fgr::Mesh> Model::get_meshes()
-{
-	return meshes;
 }
 
 void Model::Render()
@@ -397,8 +369,8 @@ void Model::Render()
 
 		glm::mat4 modelMatrix = translation * rotation * scaling;
 		glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelMatrix));
-		fgr::default_window.current_shader.uniformmat4f("modelMatrix", modelMatrix);
-		fgr::default_window.current_shader.uniformmat4f("normalMatrix", normalMatrix);
+		fgr::graphic_engine.current_shader->uniformmat4f("modelMatrix", modelMatrix);
+		fgr::graphic_engine.current_shader->uniformmat4f("normalMatrix", normalMatrix);
 		for (int a = 0; a < meshes.size(); a++)
 		{
 			fgr::Texture::unbind(GL_TEXTURE0);
@@ -407,32 +379,32 @@ void Model::Render()
 			fgr::Texture::unbind(GL_TEXTURE3);
 			fgr::Texture::unbind(GL_TEXTURE4);
 
-			if (albedo_maps.find(meshes[a].albedo_map_name) != albedo_maps.end())
+			if (albedo_maps.find(meshes[a]->albedo_map_name) != albedo_maps.end())
 			{
-				albedo_maps.find(meshes[a].albedo_map_name)->second->bind(GL_TEXTURE0);
+				albedo_maps.find(meshes[a]->albedo_map_name)->second->bind(GL_TEXTURE0);
 			}
 
-			if (normal_maps.find(meshes[a].normal_map_name) != normal_maps.end())
+			if (normal_maps.find(meshes[a]->normal_map_name) != normal_maps.end())
 			{
-				normal_maps.find(meshes[a].normal_map_name)->second->bind(GL_TEXTURE1);
+				normal_maps.find(meshes[a]->normal_map_name)->second->bind(GL_TEXTURE1);
 			}
 
-			if (metalness_maps.find(meshes[a].metalness_map_name) != metalness_maps.end())
+			if (metalness_maps.find(meshes[a]->metalness_map_name) != metalness_maps.end())
 			{
-				metalness_maps.find(meshes[a].metalness_map_name)->second->bind(GL_TEXTURE2);
+				metalness_maps.find(meshes[a]->metalness_map_name)->second->bind(GL_TEXTURE2);
 			}
 
-			if (roughness_maps.find(meshes[a].roughness_map_name) != roughness_maps.end())
+			if (roughness_maps.find(meshes[a]->roughness_map_name) != roughness_maps.end())
 			{
-				roughness_maps.find(meshes[a].roughness_map_name)->second->bind(GL_TEXTURE3);
+				roughness_maps.find(meshes[a]->roughness_map_name)->second->bind(GL_TEXTURE3);
 			}
 
-			if (ao_maps.find(meshes[a].ao_map_name) != ao_maps.end())
+			if (ao_maps.find(meshes[a]->ao_map_name) != ao_maps.end())
 			{
-				ao_maps.find(meshes[a].ao_map_name)->second->bind(GL_TEXTURE4);
+				ao_maps.find(meshes[a]->ao_map_name)->second->bind(GL_TEXTURE4);
 			}
 
-			meshes[a].Render();
+			meshes[a]->Render();
 		}
 	}
 

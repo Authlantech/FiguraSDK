@@ -23,8 +23,8 @@ namespace fgr
 	public :
 		static void begin_directional_lights();
 
-		void create(glm::vec3 direction, glm::vec3 color); 
-		void destroy();
+		DirectionalLight(glm::vec3 direction, glm::vec3 color);
+		~DirectionalLight();
 
 		void set_direction(glm::vec3 direction); 
 		void set_color(glm::vec3 color); 
@@ -49,8 +49,8 @@ namespace fgr
 	public : 
 		static void begin_point_lights();
 
-		void create(glm::vec3 position,glm::vec3 color); 
-		void destroy(); 
+		PointLight(glm::vec3 position, glm::vec3 color);
+		~PointLight();
 
 		void set_position(glm::vec3 position);
 		void set_color(glm::vec3 color); 
@@ -76,9 +76,9 @@ namespace fgr
 		static void update();
 	public : 
 		static void begin_spot_light();
-		
-		void create(glm::vec3 position, glm::vec3 color, glm::vec3 orientation, float angle);
-		void destroy(); 
+
+		SpotLight(glm::vec3 position, glm::vec3 color, glm::vec3 orientation, float angle);
+		~SpotLight();
 
 		void set_position(glm::vec3 position); 
 		void set_color(glm::vec3 color); 

@@ -41,7 +41,7 @@ namespace fgr
 		glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(int), sizeof(ATTRIBS) * light_count, data.data());		
 	}
 
-	void DirectionalLight::create(glm::vec3 direction, glm::vec3 color)
+	DirectionalLight::DirectionalLight(glm::vec3 direction, glm::vec3 color)
 	{
 		this->attribs.d_x = direction.x;
 		this->attribs.d_y = direction.y;
@@ -56,7 +56,7 @@ namespace fgr
 		update();
 	}
 
-	void DirectionalLight::destroy()
+	DirectionalLight::~DirectionalLight()
 	{
 		exist = false;
 		update();
@@ -127,27 +127,27 @@ namespace fgr
 		glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(int), sizeof(ATTRIBS) * light_count, data.data());
 	}
 
-	void PointLight::create(glm::vec3 position, glm::vec3 color)
+	PointLight::PointLight(glm::vec3 position, glm::vec3 color)
 	{
-		attribs.x = position.x; 
+		attribs.x = position.x;
 		attribs.y = position.y;
 		attribs.z = position.z;
 
-		attribs.r = color.r; 
-		attribs.g = color.g; 
-		attribs.b = color.b; 
+		attribs.r = color.r;
+		attribs.g = color.g;
+		attribs.b = color.b;
 
-		this->exist = true; 
+		this->exist = true;
 		p_light_vector.push_back(this);
 		update();
 	}
 
-	void PointLight::destroy()
+	PointLight::~PointLight()
 	{
-		this->exist = false; 
+		this->exist = false;
 		update();
 	}
-
+	
 	void PointLight::set_position(glm::vec3 position)
 	{
 		attribs.x = position.x; 
@@ -213,30 +213,31 @@ namespace fgr
 		glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(int), sizeof(ATTRIBS) * s_count, data.data());
 	}
 
-	void SpotLight::create(glm::vec3 position, glm::vec3 color, glm::vec3 orientation, float angle)
+
+	SpotLight::SpotLight(glm::vec3 position, glm::vec3 color, glm::vec3 orientation, float angle)
 	{
 		attribs.x = position.x;
 		attribs.y = position.y;
 		attribs.z = position.z;
 
-		attribs.r = color.r; 
-		attribs.g = color.g; 
-		attribs.b = color.b; 
+		attribs.r = color.r;
+		attribs.g = color.g;
+		attribs.b = color.b;
 
-		attribs.o_x = orientation.x; 
-		attribs.o_y = orientation.y; 
-		attribs.o_z = orientation.z; 
+		attribs.o_x = orientation.x;
+		attribs.o_y = orientation.y;
+		attribs.o_z = orientation.z;
 
 		attribs.angle = angle;
-		
+
 		s_light_vector.push_back(this);
 		this->exist = true;
 		update();
 	}
 
-	void SpotLight::destroy()
+	SpotLight::~SpotLight()
 	{
-		this->exist = false; 
+		this->exist = false;
 		update();
 	}
 

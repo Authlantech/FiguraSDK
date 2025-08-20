@@ -529,14 +529,13 @@ final_color = vec4(pow(result,vec3(1.0/gamma)),1.f);
 
 	class Shader {
 	private:
-		unsigned int program;
-		unsigned int vshader; // vertex shader
-		unsigned int fshader; // fragment shader
-		unsigned int gshader; // geometry shader
+		unsigned int program = 0;
+		unsigned int vshader = 0; // vertex shader
+		unsigned int fshader = 0; // fragment shader
+		unsigned int gshader = 0; // geometry shader
 	public:
-
-		void create();	
-		void destroy();
+        Shader();
+        ~Shader();
 
 		void load_from_buffer(const char* vertex_shader, const char* fragment_shader,const char* geometry_shader = nullptr);
 		void load_from_file(const char* vertex_shader_path,const char* fragment_shader_path,const char* geometry_shader_path = nullptr);
