@@ -56,14 +56,20 @@ void Model::model_loading_thread()
 void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path, std::promise<void>* p)
 {
 	std::string fpath = path;
-	std::string folder = fpath.substr(0, fpath.find_last_of("\\"));
-	std::string file_name = fpath.substr(fpath.find_last_of("\\") + 1);
+
+	// Convert path format to universal format : 
+
+	for (char& c : fpath)
+		if (c == '\\') c = '/';
+
+	std::string folder = fpath.substr(0, fpath.find_last_of("/"));
+	std::string file_name = fpath.substr(fpath.find_last_of("/") + 1);
 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(fpath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-		std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+		std::cerr << importer.GetErrorString() << std::endl;
 		return;
 	}
 
@@ -73,9 +79,6 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 	std::vector<std::string> metalness_texture_names;
 	std::vector<std::string> roughness_texture_names;
 	std::vector<std::string> ao_texture_names;
-
-	std::cout << "\nBEGINNING TO LOAD MODEL : " << file_name;
-	std::cout << "\n\nDetecting all textures...\n\n";
 
 	for (unsigned int a = 0; a < scene->mNumMaterials; a++)
 	{
@@ -91,7 +94,6 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 
 			if (std::find(albedo_texture_names.begin(), albedo_texture_names.end(), name) == albedo_texture_names.end())
 			{
-				std::cout << "\tALBEDO MAP : " << name << " detected\n";
 				albedo_texture_names.push_back(name);
 			}
 		}
@@ -105,7 +107,6 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 
 			if (std::find(normal_texture_names.begin(), normal_texture_names.end(), name) == normal_texture_names.end())
 			{
-				std::cout << "\tNORMAL MAP : " << name << " detected\n";
 				normal_texture_names.push_back(name);
 			}
 		}
@@ -119,7 +120,6 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 
 			if (std::find(metalness_texture_names.begin(), metalness_texture_names.end(), name) == metalness_texture_names.end())
 			{
-				std::cout << "\tMETALNESS MAP : " << name << " detected\n";
 				metalness_texture_names.push_back(name);
 			}
 		}
@@ -133,7 +133,6 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 
 			if (std::find(roughness_texture_names.begin(), roughness_texture_names.end(), name) == roughness_texture_names.end())
 			{
-				std::cout << "\tROUGHNESS MAP : " << name << " detected\n";
 				roughness_texture_names.push_back(name);
 			}
 		}
@@ -147,21 +146,17 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 
 			if (std::find(ao_texture_names.begin(), ao_texture_names.end(), name) == ao_texture_names.end())
 			{
-				std::cout << "\tAO MAP : " << name << " detected\n";
 				ao_texture_names.push_back(name);
 			}
 		}
 	}
-
-	std::cout << "\tCOMPLETE!\n\nLoading all textures...\n\n";
 
 	// Loading all textures: 
 	for (std::string file : albedo_texture_names)
 	{
 		std::unique_ptr<Texture> texture(new Texture);
 		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
-		model->albedo_maps.insert({ file, std::move(texture) }); // Assuming model->albedo_maps exists
-		std::cout << "\tALBEDO MAP : " << file << " is loaded!\n";
+		model->albedo_maps.insert({ file, std::move(texture) }); 
 	}
 
 	for (std::string file : normal_texture_names)
@@ -169,36 +164,31 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 		std::unique_ptr<Texture> texture(new Texture);
 		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
 		model->normal_maps.insert({ file, std::move(texture) });
-		std::cout << "\tNORMAL MAP : " << file << " is loaded!\n";
 	}
 
 	for (std::string file : metalness_texture_names)
 	{
 		std::unique_ptr<Texture> texture(new Texture);
 		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
-		model->metalness_maps.insert({ file, std::move(texture) }); // Assuming model->metalness_maps exists
-		std::cout << "\tMETALNESS MAP : " << file << " is loaded!\n";
+		model->metalness_maps.insert({ file, std::move(texture) }); 
 	}
 
 	for (std::string file : roughness_texture_names)
 	{
 		std::unique_ptr<Texture> texture(new Texture);
 		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
-		model->roughness_maps.insert({ file, std::move(texture) }); // Assuming model->roughness_maps exists
-		std::cout << "\tROUGHNESS MAP : " << file << " is loaded!\n";
+		model->roughness_maps.insert({ file, std::move(texture) }); 
 	}
 
 	for (std::string file : ao_texture_names)
 	{
 		std::unique_ptr<Texture> texture(new Texture);
 		texture->LoadFromFile(std::string(folder + '/' + file).c_str());
-		model->ao_maps.insert({ file, std::move(texture) }); // Assuming model->ao_maps exists
-		std::cout << "\tAO MAP : " << file << " is loaded!\n";
+		model->ao_maps.insert({ file, std::move(texture) }); 
 	}
 
 	processNode(scene->mRootNode, scene, aiMatrix4x4());
 
-	std::cout << "\tCOMPLETE!\n\nLoading all meshes...\n";
 
 	// Loading all meshes: 	
 
@@ -206,8 +196,6 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 	{
 		std::unique_ptr<Mesh> mesh(new Mesh);
 		aiMesh* currentMesh = scene->mMeshes[a];
-
-		std::cout << "\n\tMESH : " << currentMesh->mName.C_Str() << "\n\tProperties \n";
 
 		std::vector<vertex> vertices;
 		for (unsigned int b = 0; b < currentMesh->mNumVertices; b++)
@@ -250,10 +238,8 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 			}
 		}
 
-		std::cout << "\t\tVertex count : " << vertices.size() << "\n\t\tIndex count : " << indices.size() << "\n";
-
 		aiMaterial* material = scene->mMaterials[currentMesh->mMaterialIndex];
-		aiString mapname; // Generic string for any map type
+		aiString mapname;
 
 		std::string albedomapname_ = "";
 		std::string normalmapname_ = "";
@@ -267,7 +253,6 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 			if (dmn.find('\\') != std::string::npos) dmn = dmn.substr(dmn.find_last_of('\\') + 1);
 			else if (dmn.find('/') != std::string::npos) dmn = dmn.substr(dmn.find_last_of('/') + 1);
 			albedomapname_ = dmn;
-			std::cout << "\t\tAlbedo Map : " << albedomapname_ << std::endl;
 		}
 
 		// Extracting normal map name if exists
@@ -276,7 +261,6 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 			if (nmn.find('\\') != std::string::npos) nmn = nmn.substr(nmn.find_last_of('\\') + 1);
 			else if (nmn.find('/') != std::string::npos) nmn = nmn.substr(nmn.find_last_of('/') + 1);
 			normalmapname_ = nmn;
-			std::cout << "\t\tNormal Map : " << normalmapname_ << std::endl;
 		}
 
 		// Extracting metalness map name if exists
@@ -285,7 +269,6 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 			if (mn.find('\\') != std::string::npos) mn = mn.substr(mn.find_last_of('\\') + 1);
 			else if (mn.find('/') != std::string::npos) mn = mn.substr(mn.find_last_of('/') + 1);
 			metalnessmapname_ = mn;
-			std::cout << "\t\tMetalness Map : " << metalnessmapname_ << std::endl;
 		}
 
 		// Extracting roughness map name if exists
@@ -294,7 +277,6 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 			if (rn.find('\\') != std::string::npos) rn = rn.substr(rn.find_last_of('\\') + 1);
 			else if (rn.find('/') != std::string::npos) rn = rn.substr(rn.find_last_of('/') + 1);
 			roughnessmapname_ = rn;
-			std::cout << "\t\tRoughness Map : " << roughnessmapname_ << std::endl;
 		}
 
 		// Extracting AO map name if exists
@@ -303,10 +285,8 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 			if (an.find('\\') != std::string::npos) an = an.substr(an.find_last_of('\\') + 1);
 			else if (an.find('/') != std::string::npos) an = an.substr(an.find_last_of('/') + 1);
 			aomapname_ = an;
-			std::cout << "\t\tAO Map : " << aomapname_ << std::endl;
 		}
 
-		// Assuming mesh.load is updated to take the new map names
 		mesh->load(
 			vertices,
 			indices,
@@ -319,8 +299,6 @@ void fgr::Model::load_model(std::shared_ptr<fgr::Model> model, const char* path,
 
 		model->meshes.push_back(std::move(mesh));
 	}
-
-	std::cout << "\n-----MODEL LOADED!-----\n";
 
 	p->set_value();
 	return;

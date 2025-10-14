@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.8)
 
 include_directories(
 	"../include",
-	"imgui"	
+	"include"
 )
 
 link_directories(
@@ -17,14 +17,6 @@ link_libraries(
 )
 
 add_executable(
-	"example"
-	"example.cpp"
-
-	"imgui/imgui.cpp"
-	"imgui/imgui_demo.cpp"
-	"imgui/imgui_draw.cpp"
-	"imgui/imgui_tables.cpp"
-	"imgui/imgui_widgets.cpp"
-	"imgui/backends/imgui_impl_glfw.cpp"
-	"imgui/backends/imgui_impl_opengl3.cpp"
+	"example_glfw"
+	"example_glfw.cpp"
 )
