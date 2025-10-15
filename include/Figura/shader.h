@@ -8,149 +8,158 @@
 
 namespace fgr {
 
-	// DEFAULT SHADERS FOR RENDERING MODELS 
+	// DEFAULT SHADERS FOR RENDERING MODELS
+
 
 	static const char* model_vs = R"(
 	#version 460 core
-	
-	layout (location = 0) in vec3 _vpos;
-	layout (location = 2) in vec2 _vtexcoords;
-	layout (location = 3) in vec3 _vnormal;
-	layout (location = 4) in vec3 _vtangent;
-	layout (location = 5) in vec3 _vbittangent;
-	
-	out vec2 _ftexcoords;
-	out vec3 _fnormal;
-	out vec3 _ftangent;
-	out vec3 _fbittangent;
-	out vec3 _fragPos;
-	
+
+	layout (location = 0) in vec3 local_space_ver_pos;
+	layout (location = 2) in vec2 ver_texture_coords;
+	layout (location = 3) in vec3 local_space_ver_normal;
+	layout (location = 4) in vec3 local_space_ver_tangent;
+	layout (location = 5) in vec3 local_space_ver_bittangent;
+
+	out VERTEX_DATA
+	{
+		vec3 world_space_frag_pos;
+		vec3 world_space_ver_normal;
+		vec3 world_space_ver_tangent;
+		vec3 world_space_ver_bittangent;
+		vec2 ver_texture_coordinates;
+
+	} ver_out;
+
 	uniform mat4 modelMatrix;
 	uniform mat4 viewMatrix;
 	uniform mat4 projectionMatrix;
 	uniform mat4 normalMatrix;
-	
+
 	void main() {
-		gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(_vpos,1.0);
-		_ftexcoords = _vtexcoords;
-		_fnormal = mat3(normalMatrix) * _vnormal;
-		_ftangent = mat3(normalMatrix) * _vtangent;
-		_fbittangent = mat3(normalMatrix) * _vbittangent;
-		_fragPos = vec3(modelMatrix * vec4(_vpos,1.0));
+		gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(local_space_ver_pos,1.0);
+		ver_out.ver_texture_coordinates = ver_texture_coords;
+		ver_out.world_space_ver_normal = mat3(normalMatrix) * local_space_ver_normal;
+		ver_out.world_space_ver_tangent = mat3(normalMatrix) * local_space_ver_tangent;
+		ver_out.world_space_ver_bittangent = mat3(normalMatrix) * local_space_ver_bittangent;
+		ver_out.world_space_frag_pos = vec3(modelMatrix * vec4(local_space_ver_pos,1.0));
 	}
 	)";
 
 	static const char* model_fs = R"(
 	#version 460 core
-	
-	// INPUTS : 
-	in vec2 _ftexcoords;
-	in vec3 _fnormal;
-	in vec3 _ftangent;
-	in vec3 _fbittangent;
-	in vec3 _fragPos;
-	
-	
-	// Directional Light : 
-	struct D_LIGHT {
+
+	struct DIRECTIONAL_LIGHT_DATA_LAYOUT
+	{
 		float x,y,z;
 		float r,g,b;
 	};
-	
-	layout (std430, binding = 0) buffer d_lights {
-		int d_count;
-		D_LIGHT d_light[];
-	};
-	
-	//Point Light : 
-	struct P_LIGHT {
+
+	struct POINT_LIGHT_DATA_LAYOUT
+	{
 		float x,y,z;
 		float r,g,b;
 	};
-	
-	layout (std430, binding = 1) buffer p_lights {
-		int p_count;
-		P_LIGHT p_light[];
-	};
-	
-	// Spot Light : 
-	struct S_LIGHT {
+
+	struct SPOT_LIGHT_DATA_LAYOUT
+	{
 		float x,y,z;
 		float r,g,b;
 		float dx,dy,dz;
 		float angle;
 	};
-	
-	layout (std430, binding = 2) buffer s_lights {
-		int s_count;
-		S_LIGHT s_light[];
+
+	layout (std430, binding = 0) buffer d_lights
+	{
+		int directional_light_count;
+		DIRECTIONAL_LIGHT_DATA_LAYOUT directional_lights[];
 	};
 	
+	layout (std430, binding = 1) buffer p_lights
+	{
+		int point_light_count;
+		POINT_LIGHT_DATA_LAYOUT point_lights[];
+	};
 	
-	//Light Maps : 
-	layout (binding = 0) uniform sampler2D diffusemap;		
-	layout (binding = 1) uniform sampler2D normalmap;
+	layout (std430, binding = 2) buffer s_lights
+	{
+		int spot_light_count;
+		SPOT_LIGHT_DATA_LAYOUT spot_lights[];
+	};
+
+	layout (binding = 0) uniform sampler2D diffuse_map;
+	layout (binding = 1) uniform sampler2D normal_map;
+
+	in VERTEX_DATA
+	{
+		vec3 world_space_frag_pos;
+		vec3 world_space_ver_normal;
+		vec3 world_space_ver_tangent;
+		vec3 world_space_ver_bittangent;
+		vec2 ver_texture_coordinates;
+	} frag_in;
+
+	out vec4 final_color;
 	
-	// OUTPUTS : 
-	out vec4 final_color;		
-	
-	// MAIN 
 	void main() {
-	
-		// Calculating the normal : 
-		vec3 normVector = vec3(0,0,0);
-		mat3 TBN = mat3(normalize(_ftangent),normalize(_fbittangent),normalize(_fnormal));
-		
-		if(texture(normalmap,_ftexcoords).rgb == vec3(0,0,0)) normVector = _fnormal;
-		
-		else {
-			normVector = TBN * (texture(normalmap,_ftexcoords).rgb * 2.0 - 1.0);
+
+		// DECIDE THE NORMAL
+
+		vec3 normal_vector = frag_in.world_space_ver_normal;
+		vec3 normal_sample = texture(normal_map,frag_in.ver_texture_coordinates).rgb;
+
+		if(normal_sample != vec3(0,0,0))
+		{
+			mat3 TBN = mat3(normalize(frag_in.world_space_ver_tangent),normalize(frag_in.world_space_ver_bittangent),normalize(frag_in.world_space_ver_normal));
+			normal_vector = TBN * (normal_sample * 2.0 - 1.0);
 		}
-		
-		// LIGHTING CALCULATIONS : 
-		
-		vec3 result = vec3(0,0,0);
-		vec3 diffuseColor = pow(texture(diffusemap,_ftexcoords).rgb, vec3(2.2));
+
+		// LIGHTING CALCULATIONS
+
+		vec3 intermediate_value = vec3(0,0,0);
+		vec3 texel_color = pow(texture(diffuse_map,frag_in.ver_texture_coordinates).rgb, vec3(2.2));
 		
 		// Directional Light Calculations : 
 		
-		for(int a = 0;a < d_count;a++) {
-		// Diffuse 
-			vec3 lightvector = normalize(-vec3(d_light[a].x, d_light[a].y, d_light[a].z));
-			float diffsth = max(dot(normVector,lightvector),0.0);
-			vec3 diffres = vec3(d_light[a].r, d_light[a].g, d_light[a].b) * diffsth * diffuseColor;
-			result += diffres;
+		for(int a = 0;a < directional_light_count;a++)
+		{
+			// Diffuse
+			vec3 light_vector = normalize(-vec3(directional_lights[a].x, directional_lights[a].y, directional_lights[a].z));
+			vec3 light_color = vec3(directional_lights[a].r, directional_lights[a].g, directional_lights[a].b);
+			float diffuse_comp = max(dot(normal_vector,light_vector),0.0);
+			intermediate_value += light_color * diffuse_comp * texel_color;
 		}		
 		
 		// Point Light Calculations : 
 		
-		for(int a = 0;a < p_count;a++) {
-		
-		// Diffuse
-			vec3 lightvector = normalize(vec3(p_light[a].x, p_light[a].y, p_light[a].z) - _fragPos);
-			float diffsth = max(dot(normVector,lightvector),0.0);
-			vec3 diffres = vec3(p_light[a].r, p_light[a].g, p_light[a].b) * diffsth * diffuseColor;
-			result += diffres;
+		for(int a = 0;a < point_light_count;a++)
+		{
+			// Diffuse
+			vec3 light_position = vec3(point_lights[a].x, point_lights[a].y, point_lights[a].z);
+			vec3 light_color = vec3(point_lights[a].r, point_lights[a].g, point_lights[a].b);
+			vec3 light_vector = normalize(light_position - frag_in.world_space_frag_pos);
+			float diffuse_comp = max(dot(normal_vector,light_vector),0.0);
+			intermediate_value += light_color * diffuse_comp * texel_color;
 		}
 		
 		// Spot Light Calculations : 
 		
-		for(int a = 0;a < s_count;a++) {
-			vec3 light_pos = vec3(s_light[a].x,s_light[a].y,s_light[a].z);
-			vec3 target_dir = normalize(vec3(s_light[a].dx, s_light[a].dy, s_light[a].dz));
-			vec3 light_dir = normalize(_fragPos - light_pos);
+		for(int a = 0;a < spot_light_count;a++) {
+			vec3 light_pos = vec3(spot_lights[a].x,spot_lights[a].y,spot_lights[a].z);
+			vec3 light_color = vec3(spot_lights[a].r, spot_lights[a].g, spot_lights[a].b);
+			vec3 target_dir = normalize(vec3(spot_lights[a].dx, spot_lights[a].dy, spot_lights[a].dz));
+			vec3 light_dir = normalize(frag_in.world_space_frag_pos - light_pos);
 			float cos_val = dot(target_dir, light_dir);
-			if(cos_val > cos(radians(s_light[a].angle))) {
+			if(cos_val > cos(radians(spot_lights[a].angle)))
+			{
 				// Diffuse 
-				vec3 lightvector = -light_dir;
-				float diffsth = max(dot(normVector,lightvector),0.0);
-				vec3 diffres = vec3(s_light[a].r, s_light[a].g, s_light[a].b) * diffsth * diffuseColor;
-				result += diffres;
-				}
+				vec3 light_vector = -light_dir;
+				float diffuse_comp = max(dot(normal_vector,light_vector),0.0);
+				intermediate_value += light_color * diffuse_comp * texel_color;
 			}
+		}
 		
 		float gamma = 2.2;
-		final_color = vec4(pow(result,vec3(1.0/gamma)),1.0);
+		final_color = vec4(pow(intermediate_value,vec3(1.0/gamma)),1.0);
 	
 	}
 	)";

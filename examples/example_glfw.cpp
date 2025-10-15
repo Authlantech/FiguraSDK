@@ -39,7 +39,7 @@ int main()
 	camera->set_position({ 0,0,5 });
 
 	//Load a model
-	const char* model_path = "../../../../../../Documents/3D Models/Fortress_Cannon_Cart_1012161648_texture_obj/Fortress_Cannon_Cart_1012161648_texture_obj/Fortress_Cannon_Cart_1012161648_texture.obj";
+	const char* model_path = "../../../../Documents/3D Models/Fortress_Cannon_Cart_1012161648_texture_obj/Fortress_Cannon_Cart_1012161648_texture_obj/Fortress_Cannon_Cart_1012161648_texture.obj";
 	auto model = fgr::graphic_engine.create_model("model1", model_path);		
 
 	//Create a light source : 
