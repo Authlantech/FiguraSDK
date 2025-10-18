@@ -11,12 +11,23 @@ link_directories(
 
 link_libraries(
 	"opengl32.lib"
-	"FiguraSDK.lib"
 	"assimp-vc143-mt.lib"
 	"glfw3.lib"
 )
 
 add_executable(
-	"example_glfw"
-	"example_glfw.cpp"
+		"example_glfw"
+
+		"example_glfw.cpp"
+
+		"../source/camera.cpp"
+		"../source/indexbuffer.cpp"
+		"../source/mesh.cpp"
+		"../source/model.cpp"
+		"../source/shader.cpp"
+		"../source/vertexbuffer.cpp"
+		"../source/glad.c"
+		"../source/texture.cpp"
+		"../source/light.cpp"
+		"../source/Figura.cpp"
 )

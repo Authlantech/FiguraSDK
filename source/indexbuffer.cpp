@@ -2,30 +2,29 @@
 
 using namespace fgr;
 
-void indexbuffer::generate()
+IndexBuffer::IndexBuffer()
 {
-	glGenBuffers(1, &id);
+	glGenBuffers(1,&id);
 }
 
-void indexbuffer::destroy()
+IndexBuffer::~IndexBuffer()
 {
-	glDeleteBuffers(1, &id);
+	glDeleteBuffers(1,&id);
 }
 
-void indexbuffer::bind()
+void IndexBuffer::bind() const
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 }
 
-void indexbuffer::data(unsigned int* indices
-	, unsigned int size)
+void IndexBuffer::data(const unsigned int* indices,unsigned int size)
 {
 	bind(); 
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices,GL_STATIC_DRAW); 
 	indices_count = size / sizeof(unsigned int);
 }
 
-unsigned int indexbuffer::get_count()
+unsigned int IndexBuffer::get_count() const
 {
 	return indices_count;
 }

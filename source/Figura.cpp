@@ -1,14 +1,30 @@
+
 #include <Figura/Figura.h>
+
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <assimp/material.h>
+#include <assimp/Importer.hpp>
 
 namespace fgr
 {
 	GraphicsEngine graphic_engine;
 
 
-	void GraphicsEngine::init_engine(GLADloadproc p)
+	void GraphicsEngine::init_engine(const char* title,int width,int height)
 	{
-		// Init glad 		
-		gladLoadGLLoader(p);		
+		// Create OpenGL Context
+		glfwInit();
+
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+		window = glfwCreateWindow(width,height,title,0,0);
+		glfwMakeContextCurrent(window);
+		glfwSwapInterval(1);
+		// Init GLAD
+		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 		//Begin Light Buffers 
 		fgr::DirectionalLight::begin_directional_lights();
@@ -16,7 +32,6 @@ namespace fgr
 		fgr::SpotLight::begin_spot_light();
 
 		// Start and load shaders
-
 		create_shader("phong shader", model_vs, model_fs);
 		create_shader("normal shader", normal_vs, normal_fs,normal_gs); 
 		create_shader("mesh shader", mesh_vs, mesh_fs, mesh_gs);
@@ -27,22 +42,181 @@ namespace fgr
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 
-		// glEnable(GL_BLEND);
-		// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 
-		std::thread model_loading_thread(fgr::Model::model_loading_thread);
-		model_loading_thread.detach();
+	void GraphicsEngine::update_window() {
+		glfwPollEvents();
+		glfwSwapBuffers(window);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0, 0, 1, 0);
+	}
+
+	bool GraphicsEngine::window_is_open() {
+		return !glfwWindowShouldClose(window);
+	}
+
+	void processNode(aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransformation)
+	{
+		aiMatrix4x4 vertexTransformation = parentTransformation * node->mTransformation;
+		aiMatrix3x3 normalTransformation = aiMatrix3x3(vertexTransformation).Inverse().Transpose();
+
+		// Process the mesh :
+
+		for (int a = 0; a < node->mNumMeshes; a++)
+		{
+			aiMesh* mesh = scene->mMeshes[node->mMeshes[a]];
+
+			for (int b = 0; b < mesh->mNumVertices; b++)
+			{
+				mesh->mVertices[b] = vertexTransformation * mesh->mVertices[b];
+				mesh->mNormals[b]  = normalTransformation * mesh->mNormals[b];
+				mesh->mTangents[b] = normalTransformation * mesh->mTangents[b];
+				mesh->mBitangents[b] = normalTransformation * mesh->mBitangents[b];
+			}
+		}
+
+		// Process the child nodes :
+
+		for (int a = 0; a < node->mNumChildren; a++)
+		{
+			processNode(node->mChildren[a], scene, vertexTransformation);
+		}
 
 	}
 
-	std::shared_ptr<fgr::Model> GraphicsEngine::create_model(std::string name, const char* path)
+	std::shared_ptr<fgr::Model> GraphicsEngine::create_and_load_model(std::string name, std::string path)
 	{		
-		std::shared_ptr<fgr::Model> m(new fgr::Model);
-		std::promise<void>* model_loaded_signal = new std::promise<void>;
-		m->loading_thread_checker = model_loaded_signal->get_future();
-		fgr::Model::pending_loads.push(std::make_tuple<>(m, path, model_loaded_signal));
-		models[name] = m;
-		return m;
+		std::shared_ptr<fgr::Model> model(new fgr::Model);
+
+		auto load_func = [this](std::string p,std::shared_ptr<Model>m) -> void {
+
+		};
+
+		// Convert path to universal format
+			std::string fpath = path;
+			for (char& c : fpath)
+				if (c == '\\') c = '/';
+
+			std::string folder = fpath.substr(0, fpath.find_last_of("/"));
+			std::string file_name = fpath.substr(fpath.find_last_of("/") + 1);
+
+			Assimp::Importer importer;
+			const aiScene* scene = importer.ReadFile(fpath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
+
+			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+				std::cerr << importer.GetErrorString() << std::endl;
+			}
+
+			std::unordered_set<std::string> detected_textures;
+			std::unordered_map<std::string,std::shared_ptr<Texture>> loaded_textures;
+
+			aiTextureType desired_types[] = {
+				aiTextureType_BASE_COLOR,
+				aiTextureType_DIFFUSE,
+				aiTextureType_NORMALS,
+				aiTextureType_METALNESS,
+				aiTextureType_DIFFUSE_ROUGHNESS,
+				aiTextureType_AMBIENT_OCCLUSION
+			};
+
+			// Detect all textures
+
+			for (unsigned int a = 0; a < scene->mNumMaterials; a++) {
+				aiMaterial* material = scene->mMaterials[a];
+				for (aiTextureType type : desired_types) {
+					int texture_count = material->GetTextureCount(type);
+					if (texture_count != 0) {
+						aiString texture_path;
+						material->GetTexture(type,0,&texture_path);
+						std::string texture_file_name = std::string(texture_path.C_Str());
+						if (file_name.find('\\') != std::string::npos) texture_file_name = texture_file_name.substr(texture_file_name.find_last_of('\\') + 1);
+						else if (texture_file_name.find('/') != std::string::npos) texture_file_name = texture_file_name.substr(texture_file_name.find_last_of('/') + 1);
+						detected_textures.insert(texture_file_name);
+					}
+				}
+			}
+
+			// Load all textures
+			for (auto n : detected_textures) {
+				std::shared_ptr<Texture> texture(new Texture);
+				if (texture->LoadFromFile(std::string(folder + '/' + n).c_str())) {
+					loaded_textures[n] = texture;
+				}
+			}
+
+			// Loading all meshes
+			processNode(scene->mRootNode, scene, aiMatrix4x4());
+
+			for (unsigned int a = 0; a < scene->mNumMeshes; a++)
+			{
+				std::shared_ptr<Mesh> mesh(new Mesh);
+				aiMesh* currentMesh = scene->mMeshes[a];
+
+				std::vector<Vertex> vertices;
+				for (unsigned int b = 0; b < currentMesh->mNumVertices; b++)
+				{
+					Vertex v;
+					v.position[0] = currentMesh->mVertices[b].x;
+					v.position[1] = currentMesh->mVertices[b].y;
+					v.position[2] = currentMesh->mVertices[b].z;
+
+					if (currentMesh->HasTextureCoords(0))
+					{
+						v.texture_coordinates[0] = currentMesh->mTextureCoords[0][b].x;
+						v.texture_coordinates[1] = currentMesh->mTextureCoords[0][b].y;
+					}
+					if (currentMesh->HasNormals())
+					{
+						v.normal[0] = currentMesh->mNormals[b].x;
+						v.normal[1] = currentMesh->mNormals[b].y;
+						v.normal[2] = currentMesh->mNormals[b].z;
+					}
+					if (currentMesh->HasTangentsAndBitangents())
+					{
+						v.tangent[0] = currentMesh->mTangents[b].x;
+						v.tangent[1] = currentMesh->mTangents[b].y;
+						v.tangent[2] = currentMesh->mTangents[b].z;
+
+						v.bittangent[0] = currentMesh->mBitangents[b].x;
+						v.bittangent[1] = currentMesh->mBitangents[b].y;
+						v.bittangent[2] = currentMesh->mBitangents[b].z;
+					}
+					vertices.push_back(v);
+				}
+
+				std::vector<unsigned int> indices;
+				for (unsigned int b = 0; b < currentMesh->mNumFaces; b++)
+				{
+					for (unsigned int c = 0; c < currentMesh->mFaces[b].mNumIndices; c++)
+					{
+						indices.push_back(currentMesh->mFaces[b].mIndices[c]);
+					}
+				}
+
+				std::vector<std::shared_ptr<Texture>> mesh_textures;
+				aiMaterial* material = scene->mMaterials[currentMesh->mMaterialIndex];
+
+				for (aiTextureType type : desired_types) {
+					int texture_count = material->GetTextureCount(type);
+					if (texture_count != 0) {
+						aiString texture_path;
+						material->GetTexture(type,0,&texture_path);
+						std::string texture_file_name = std::string(texture_path.C_Str());
+						if (texture_file_name.find('\\') != std::string::npos) texture_file_name = texture_file_name.substr(texture_file_name.find_last_of('\\') + 1);
+						else if (texture_file_name.find('/') != std::string::npos) texture_file_name = texture_file_name.substr(texture_file_name.find_last_of('/') + 1);
+
+						if (loaded_textures.find(texture_file_name) != loaded_textures.end()) {
+							mesh_textures.push_back(loaded_textures[texture_file_name]);
+						}
+					}
+				}
+
+				mesh->Load(vertices, indices,mesh_textures);
+				model->meshes.push_back(mesh);
+			}
+
+		models[name] = model;
+		return model;
 	}
 
 	void GraphicsEngine::delete_model(std::string name)

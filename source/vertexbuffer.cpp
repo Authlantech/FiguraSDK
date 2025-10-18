@@ -2,28 +2,28 @@
 
 using namespace fgr;
 
-void vertexbuffer::generate()
+VertexBuffer::VertexBuffer()
 {
-	glGenBuffers(1, &id); 
+	glGenBuffers(1, &id);
 }
 
-void vertexbuffer::destroy()
+VertexBuffer::~VertexBuffer()
 {
 	glDeleteBuffers(1, &id); 
 }
 
-void vertexbuffer::bind()
+void VertexBuffer::bind() const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, id);
 }
 
-void vertexbuffer::data(vertex* data, unsigned int size)
+void VertexBuffer::data(const Vertex* const vertices,unsigned int size) const
 {
 	bind();
-	glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 }
 
-void vertexbuffer::set_layout()
+void VertexBuffer::set_layout() const
 {
 	bind();
 	glEnableVertexAttribArray(0);
@@ -33,10 +33,10 @@ void vertexbuffer::set_layout()
 	glEnableVertexAttribArray(4);
 	glEnableVertexAttribArray(5);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)(sizeof(float) * 3));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)(sizeof(float) * 7));
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)(sizeof(float) * 9));
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)(sizeof(float) * 12));
-	glVertexAttribPointer(5, 3, GL_FLOAT, GL_TRUE, sizeof(vertex), (void*)(sizeof(float) * 15));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)0);						// float position[3]
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)(sizeof(float) * 3));		// float color[4]
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)(sizeof(float) * 7));		// float texture_coordinates[3]
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)(sizeof(float) * 10));	// float normal[3]
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)(sizeof(float) * 13));	// float tangent[3]
+	glVertexAttribPointer(5, 3, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)(sizeof(float) * 16));	// float bittangent[3]
 }

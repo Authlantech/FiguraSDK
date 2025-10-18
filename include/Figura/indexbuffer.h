@@ -3,18 +3,16 @@
 
 namespace fgr {
 
-	class indexbuffer {
-	private:
-		unsigned int id;
+	class IndexBuffer {
+		unsigned int id = 0;
 		unsigned int indices_count = 0;
 	public:
-		void generate();
-		void destroy();
+		IndexBuffer();
+		~IndexBuffer();
 
-		void bind();
-		void data(unsigned int* indices, unsigned int size);
-
-		unsigned int get_count();
+		void bind() const;
+		void data(const unsigned int* indices, unsigned int size);
+		unsigned int get_count() const;
 
 	};
 
