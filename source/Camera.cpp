@@ -1,16 +1,15 @@
 #include <Figura/camera.h>
-#include <Figura/Figura.h>
 
 using namespace fgr;
 
-void Camera::create_perspective(float fov, float aspect, float zNear, float zFar)
+void Camera::configure_perspective(float fov, float aspect, float zNear, float zFar)
 {
 	this->p_attribs = { fov, aspect, zNear, zFar };
 	projectionMatrix = glm::perspective(glm::radians(fov), aspect, zNear, zFar);
 	viewMatrix = glm::lookAt(position, position + oreintation, glm::vec3(0.f, 1.f, 0.f));
 }
 
-void Camera::create_ortho(float left, float right, float bottom, float top,float near,float far)
+void Camera::configure_ortho(float left, float right, float bottom, float top,float near,float far)
 {
 	this->o_attribs = {left, right, bottom, top, near, far};
 	projectionMatrix = glm::ortho(left, right, bottom,top,near,far);
@@ -60,9 +59,9 @@ OrthographicAttribs Camera::give_orthographic_attribs()
 	return o_attribs;
 }
 
-void Camera::use()
+void Camera::use(std::shared_ptr<Shader> shader)
 {
-	fgr::graphic_engine.current_shader->uniformvec3("viewPos", position.x, position.y, position.z);
-	fgr::graphic_engine.current_shader->uniformmat4f("projectionMatrix", projectionMatrix); 
-	fgr::graphic_engine.current_shader->uniformmat4f("viewMatrix", viewMatrix);
+	shader->uniformvec3("viewPos", position.x, position.y, position.z);
+	shader->uniformmat4f("projectionMatrix", projectionMatrix);
+	shader->uniformmat4f("viewMatrix", viewMatrix);
 }

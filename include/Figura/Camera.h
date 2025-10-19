@@ -1,6 +1,9 @@
 #pragma once 
+#include <memory>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "Shader.h"
 
 namespace fgr {
 
@@ -35,25 +38,25 @@ namespace fgr {
 		OrthographicAttribs o_attribs = { 0 };
 
 	public:
-		Camera() {}; 
-		~Camera() {};
+		Camera() = default;
+		~Camera() = default;
 
-		void create_perspective(float fov, float aspect, float zNear, float zFar);
-		void create_ortho(float left,float right,float bottom,float top,float near,float far);
+		void configure_perspective(float fov, float aspect, float zNear, float zFar);
+		void configure_ortho(float left,float right,float bottom,float top,float near,float far);
 
 		void set_position(glm::vec3 pos);
 		void face(glm::vec3 target);
 
 		glm::vec3 get_oreintation();
 		glm::vec3 get_position();
-
+	private :
 		glm::mat4 get_viewMatrix(); 
 		glm::mat4 get_projectionMatrix();
 
 		PerspectiveAttribs give_perpective_attribs(); 
 		OrthographicAttribs give_orthographic_attribs();
-
-		void use();
+	public :
+		void use(std::shared_ptr<Shader> shader);
 	};
 
 }

@@ -30,27 +30,21 @@ void Texture::unbind(const GLenum texture_unit)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-bool Texture::LoadFromFile(const char* path) const
-{
-	unsigned char* pixels = nullptr;
-	int width = 0,height = 0,nrChannels = 0;
-
+Texture::DATA Texture::LoadTextureData(const char* file_path) {
+	DATA data;
 	stbi_set_flip_vertically_on_load(true);
-	pixels = stbi_load(path, &width, &height, &nrChannels,3);
-	if (pixels) {
-		bind();
-		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,pixels);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		stbi_image_free(pixels);
-		return true;
-	}
-	else {
-		return false;
-	}
+	data.pixels = stbi_load(file_path,&data.width,&data.height,&data.channels,3);
+	return data;
 }
 
-void Texture::LoadFromBuffer(const void *buffer,int width,int height) const {
-	bind();
-	glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,buffer);
-	glGenerateMipmap(GL_TEXTURE_2D);
+bool Texture::LoadFromData(Texture::DATA data) {
+	if (data.pixels == NULL) {
+		return false;
+	}
+	else {
+		bind();
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data.pixels);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		return true;
+	}
 }

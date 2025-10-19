@@ -291,14 +291,17 @@ namespace fgr {
 		unsigned int fshader = 0; 
 		unsigned int gshader = 0; 
 	public:
+		friend class Scene;
+		friend class Camera;
+		friend class Model;
+
         Shader();
         ~Shader();
 
 		void load_from_buffer(const char* vertex_shader, const char* fragment_shader,const char* geometry_shader = nullptr);
 		void load_from_file(const char* vertex_shader_path,const char* fragment_shader_path,const char* geometry_shader_path = nullptr);
-
+	private :
 		void use();
-
 		void uniformmat4f(const char* name, glm::mat4 val);
 		void uniformfloat(const char* name, float val);
 		void uniformvec3(const char* name, float x, float y, float z);

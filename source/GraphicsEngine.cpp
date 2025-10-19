@@ -1,0 +1,84 @@
+#include <Figura/GraphicsEngine.h>
+
+using namespace fgr;
+
+
+void GraphicsEngine::initWindow(int width,int height,const char* title) {
+
+    // Init GLFW
+    int res = glfwInit();
+    if (res == GLFW_FALSE)
+    {
+        printf("glfw could not be initilaized!\n");
+        exit(-1);
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // Create window
+
+    window = glfwCreateWindow(width, height, title, 0, 0);
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
+
+    // Init glad
+    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+    //Begin Light Buffers
+    fgr::DirectionalLight::begin_directional_lights();
+    fgr::PointLight::begin_point_lights();
+    fgr::SpotLight::begin_spot_light();
+
+    //Enable Depth Testing and Face Culling :
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
+}
+
+void GraphicsEngine::deleteWindow() {
+
+}
+
+ScenePtr GraphicsEngine::createScene(std::string name) {
+    ScenePtr scene = std::make_shared<Scene>();
+    scenes[name] = scene;
+    return scene;
+}
+
+void GraphicsEngine::createScene(const std::string name, ScenePtr source_scene) {
+    scenes[name] = source_scene;
+}
+
+ScenePtr GraphicsEngine::getScene(const std::string name) {
+    ScenePtr scene = nullptr;
+    try {
+        scene = scenes[name];
+    }
+    catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+        return nullptr;
+    }
+    return scene;
+}
+
+void GraphicsEngine::deleteScene(const std::string name) {
+
+}
+
+bool GraphicsEngine::isWindowOpen() {
+    return !glfwWindowShouldClose(window);
+}
+
+void GraphicsEngine::updateWindow() {
+    glfwPollEvents();
+    glfwSwapBuffers(window);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0, 0.4, 1, 0);
+}
+
+
+
+
