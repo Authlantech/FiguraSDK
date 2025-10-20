@@ -37,7 +37,7 @@ namespace fgr {
         void                renderModel(std::string name);
     private :
         std::unordered_map<std::string,std::future<void> > load_status;
-        std::unordered_map<std::string,Model::DATA >       loaded_data;
+        std::unordered_map<std::string,MODEL_DATA >       loaded_data;
     public :
         ShaderPtr           createShader(std::string name);
         void                useShader(std::string name);

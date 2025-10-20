@@ -47,7 +47,7 @@ void Model::Render(std::shared_ptr<Shader> shader)
 		}
 }
 
-void Model::LoadFromData(DATA data) {
+void Model::LoadFromData(MODEL_DATA data) {
 	meshes.clear();
 	for (auto& d : data.model_meshes) {
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
@@ -86,9 +86,9 @@ void processNode(aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform
 
 }
 
-Model::DATA Model::LoadModelData(std::string path) {
+MODEL_DATA Model::LoadModelData(std::string path) {
 
-	DATA loaded_data;
+	MODEL_DATA loaded_data;
 
 	std::string fpath = path;
 
@@ -119,7 +119,7 @@ Model::DATA Model::LoadModelData(std::string path) {
 		aiTextureType_AMBIENT_OCCLUSION
 	};
 
-	std::unordered_map<std::string,Texture::DATA> loaded_textures;
+	std::unordered_map<std::string,TEXTURE_DATA> loaded_textures;
 
 	for (int a = 0;a < scene->mNumMaterials;a++) {
 		aiMaterial* material = scene->mMaterials[a];
@@ -152,7 +152,7 @@ Model::DATA Model::LoadModelData(std::string path) {
 
 	for (unsigned int a = 0; a < scene->mNumMeshes; a++)
 	{
-		Mesh::DATA mesh_data;
+		MESH_DATA mesh_data;
 
 		aiMesh* currentMesh = scene->mMeshes[a];
 

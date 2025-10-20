@@ -8,17 +8,14 @@
 
 namespace fgr {
 
-
+	struct MESH_DATA {
+		std::vector<Vertex> vertices;
+		std::vector<unsigned int> indices;
+		std::vector<TEXTURE_DATA> textures;
+	};
 
 	class Mesh
 	{
-	public :
-		struct DATA {
-		std::vector<Vertex> vertices;
-		std::vector<unsigned int> indices;
-		std::vector<Texture::DATA> textures;
-	};
-	private :
 		unsigned int vertexarray = 0;
 		VertexBuffer vb;
 		IndexBuffer ib;
@@ -28,8 +25,8 @@ namespace fgr {
 		Mesh();
 		~Mesh();
 
-		void LoadFromData(DATA data);
-		static DATA CreateMeshData(std::vector<Vertex> vertices,std::vector<unsigned int> indices,std::vector<std::string>texture_file_paths);
+		void LoadFromData(MESH_DATA data);
+		static MESH_DATA CreateMeshData(std::vector<Vertex> vertices,std::vector<unsigned int> indices,std::vector<std::string>texture_file_paths);
 		void Render() const;
 	};
 

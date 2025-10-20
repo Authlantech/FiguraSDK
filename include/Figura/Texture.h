@@ -4,22 +4,24 @@
 
 namespace fgr {
 
-	class Texture
-	{
-	public :
-		struct DATA {
+
+	struct TEXTURE_DATA {
 		unsigned char* pixels = 0;
 		int width = 0, height = 0, channels = 0;
 	};
-	private:
+
+	class Texture
+	{
 		unsigned int id = 0;
 	public:		
 		Texture();
 		~Texture();
 
-		bool LoadFromData(Texture::DATA data);
+		bool LoadFromData(TEXTURE_DATA data);
 		void bind(const GLenum texture_unit = GL_TEXTURE0) const;
 		static void unbind(const GLenum texture_unit = GL_TEXTURE0);
-		static DATA LoadTextureData(const char* file_path);
+		static TEXTURE_DATA LoadTextureData(const char* file_path);
 	};
+
+
 }

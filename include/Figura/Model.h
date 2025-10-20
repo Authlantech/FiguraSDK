@@ -8,12 +8,11 @@
 
 namespace fgr {
 
-	class Model {
-	public :
-		struct DATA {
-		std::vector<Mesh::DATA> model_meshes;
+	struct MODEL_DATA {
+		std::vector<MESH_DATA> model_meshes;
 	};
-	private:
+
+	class Model {
 		std::vector<std::shared_ptr<Mesh>> meshes;
 		glm::mat4 translation = glm::mat4(1.f);
 		glm::mat4 rotation = glm::mat4(1.f);
@@ -25,9 +24,9 @@ namespace fgr {
 		void scale(float v);
 		void rotate(glm::vec3 v, float angle);
 		glm::vec3 get_position();
-		void LoadFromData(DATA data);
+		void LoadFromData(MODEL_DATA data);
 
-		static DATA LoadModelData(std::string path);
+		static MODEL_DATA LoadModelData(std::string path);
 	private :
 		void Render(std::shared_ptr<Shader> shader);
 	};

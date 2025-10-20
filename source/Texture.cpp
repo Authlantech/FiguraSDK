@@ -30,14 +30,14 @@ void Texture::unbind(const GLenum texture_unit)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Texture::DATA Texture::LoadTextureData(const char* file_path) {
-	DATA data;
+TEXTURE_DATA Texture::LoadTextureData(const char* file_path) {
+	TEXTURE_DATA data;
 	stbi_set_flip_vertically_on_load(true);
 	data.pixels = stbi_load(file_path,&data.width,&data.height,&data.channels,3);
 	return data;
 }
 
-bool Texture::LoadFromData(Texture::DATA data) {
+bool Texture::LoadFromData(TEXTURE_DATA data) {
 	if (data.pixels == NULL) {
 		return false;
 	}
