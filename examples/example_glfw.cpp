@@ -29,12 +29,13 @@ int main()
 	//Create camera :
 	auto camera = scene->createCamera("default camera");
 	camera->configure_perspective(60.f, window_width / window_height,0.1f,100.f);
+	camera->set_position({0,0,10});
 
 	//Load a model
 	const char* model_path = "../../../../Documents/3D Models/Fortress_Cannon_Cart_1012161648_texture_obj/Fortress_Cannon_Cart_1012161648_texture_obj/Fortress_Cannon_Cart_1012161648_texture.obj";
-	auto model = scene->createModel("model1");
-	model->LoadFromData(fgr::Model::LoadModelData(model_path));
-	model->set_position({0,0,-10});
+	scene->createModel("model1",model_path);
+	scene->getModel("model1")->set_position({0,0,-5});
+
 
 	//Create a light source : 
 	scene->createDirectionalLight("sun",{ 1,-1,0 }, { 1,1,1 });
@@ -42,7 +43,7 @@ int main()
 	//Window loop 
 	while (engine.isWindowOpen())
 	{					
-		model->rotate({ 0,1,0 }, 4.f);
+		scene->getModel("model1")->rotate({ 0,1,0 }, 4.f);
 
 		scene->useShader("model shader");
 		scene->useCamera("default camera");

@@ -1,4 +1,5 @@
 #include <Figura/GraphicsEngine.h>
+#include <set>
 
 using namespace fgr;
 
@@ -12,6 +13,23 @@ void Scene::createModel(std::string name, ModelPtr source_model) {
     if (source_model != nullptr)
     models[name] = source_model;
 }
+
+void Scene::createModel(std::string name, std::string path) {
+    ModelPtr model = std::make_shared<Model>();
+    models[name] = model;
+
+    std::promise<void> promise;
+    load_status.insert({name, promise.get_future()});
+
+    auto load_process = [this](std::string name,std::string path,std::promise<void>&& load_alert) ->void {
+        this->loaded_data[name] = Model::LoadModelData(path);
+        load_alert.set_value();
+    };
+
+    std::thread load_thread(load_process,name,path, std::move(promise));
+    load_thread.detach();
+}
+
 
 ShaderPtr Scene::createShader(std::string name) {
     ShaderPtr shader = std::make_shared<Shader>();
@@ -172,6 +190,14 @@ void Scene::RenderScene() {
         return;
 
     for (const auto model : models) {
+        if (load_status.find(model.first) != load_status.end()) {
+            if (load_status[model.first].wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+                model.second->LoadFromData(loaded_data[model.first]);
+                load_status.erase(model.first);
+                loaded_data.erase(model.first);
+            }
+        }
+
         model.second->Render(currentShader);
     }
 }
