@@ -25,8 +25,6 @@ int main()
 	camera->set_position({0,0,10});
 	scene->useCamera("default camera");
 
-	scene->useShader("figura_default_mesh_shader");
-
 	//Load a model
 	const char* model_path = "../../../../Documents/3D Models/Fortress_Cannon_Cart_1012161648_texture_obj/Fortress_Cannon_Cart_1012161648_texture_obj/Fortress_Cannon_Cart_1012161648_texture.obj";
 	scene->createModel("model1",model_path);
