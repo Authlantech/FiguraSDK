@@ -33,18 +33,16 @@ namespace fgr {
         ~Scene() = default;
 
         ModelPtr            createModel(std::string name);
-        void                createModel(std::string name, ModelPtr source_model);
         void                createModel(std::string name,std::string path);
+        void                renderModel(std::string name);
     private :
         std::unordered_map<std::string,std::future<void> > load_status;
         std::unordered_map<std::string,Model::DATA >       loaded_data;
     public :
         ShaderPtr           createShader(std::string name);
-        void                createShader(std::string name, ShaderPtr source_shader);
         void                useShader(std::string name);
 
         CameraPtr           createCamera(std::string name);
-        void                createCamera(std::string name, CameraPtr source_camera);
         void                useCamera(std::string name);
 
         DirectionalLightPtr createDirectionalLight(std::string name,glm::vec3 direction, glm::vec3 color);

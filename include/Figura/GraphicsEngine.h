@@ -13,10 +13,9 @@ namespace fgr {
         void     initWindow(int width,int height,const char* title);
         void     deleteWindow();
 
-        ScenePtr createScene(const std::string name);
-        void     createScene(const std::string name, ScenePtr source_scene);
-        ScenePtr getScene(const std::string name);
-        void     deleteScene(const std::string name);
+        ScenePtr createScene(std::string name);
+        ScenePtr getScene(std::string name);
+        void     deleteScene(std::string name);
 
         bool     isWindowOpen();
         void     updateWindow();

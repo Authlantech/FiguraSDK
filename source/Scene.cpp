@@ -9,11 +9,6 @@ ModelPtr Scene::createModel(std::string name) {
     return model;
 }
 
-void Scene::createModel(std::string name, ModelPtr source_model) {
-    if (source_model != nullptr)
-    models[name] = source_model;
-}
-
 void Scene::createModel(std::string name, std::string path) {
     ModelPtr model = std::make_shared<Model>();
     models[name] = model;
@@ -30,16 +25,20 @@ void Scene::createModel(std::string name, std::string path) {
     load_thread.detach();
 }
 
+void Scene::renderModel(std::string name) {
+    auto model = getModel(name);
+    if (model != nullptr) {
+        currentShader->use();
+        currentCamera->use(currentShader);
+        model->Render(currentShader);
+    }
+}
+
 
 ShaderPtr Scene::createShader(std::string name) {
     ShaderPtr shader = std::make_shared<Shader>();
     shaders[name] = shader;
     return shader;
-}
-
-void Scene::createShader(std::string name, ShaderPtr source_shader) {
-    if (source_shader != nullptr)
-    shaders[name] = source_shader;
 }
 
 void Scene::useShader(std::string name) {
@@ -54,11 +53,6 @@ CameraPtr Scene::createCamera(std::string name) {
     CameraPtr camera = std::make_shared<Camera>();
     cameras[name] = camera;
     return camera;
-}
-
-void Scene::createCamera(std::string name, CameraPtr source_camera) {
-    if (source_camera != nullptr)
-        cameras[name] = source_camera;
 }
 
 void Scene::useCamera(std::string name) {
@@ -188,6 +182,11 @@ SpotLightPtr Scene::getSpotLight(std::string name) {
 void Scene::RenderScene() {
     if (currentShader == nullptr)
         return;
+    if (currentCamera == nullptr)
+        return;
+
+    currentShader->use();
+    currentCamera->use(currentShader);
 
     for (const auto model : models) {
         if (load_status.find(model.first) != load_status.end()) {
@@ -197,7 +196,6 @@ void Scene::RenderScene() {
                 loaded_data.erase(model.first);
             }
         }
-
         model.second->Render(currentShader);
     }
 }

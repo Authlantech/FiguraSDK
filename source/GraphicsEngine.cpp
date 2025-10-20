@@ -34,7 +34,6 @@ void GraphicsEngine::initWindow(int width,int height,const char* title) {
     //Enable Depth Testing and Face Culling :
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-
 }
 
 void GraphicsEngine::deleteWindow() {
@@ -44,17 +43,25 @@ void GraphicsEngine::deleteWindow() {
 ScenePtr GraphicsEngine::createScene(std::string name) {
     ScenePtr scene = std::make_shared<Scene>();
     scenes[name] = scene;
-    return scene;
-}
 
-void GraphicsEngine::createScene(const std::string name, ScenePtr source_scene) {
-    scenes[name] = source_scene;
+    auto modelShader = scene->createShader("figura_default_model_shader");
+    modelShader->load_from_buffer(model_vs,model_fs);
+
+    auto normalShader = scene->createShader("figura_default_normal_shader");
+    normalShader->load_from_buffer(normal_vs,normal_fs,normal_gs);
+
+    auto meshShader = scene->createShader("figura_default_mesh_shader");
+    meshShader->load_from_buffer(mesh_vs,mesh_fs,mesh_gs);
+
+    scene->useShader("figura_default_model_shader");
+
+    return scene;
 }
 
 ScenePtr GraphicsEngine::getScene(const std::string name) {
     ScenePtr scene = nullptr;
     try {
-        scene = scenes[name];
+        scene = scenes.at(name);
     }
     catch (std::exception& e) {
         std::cout << e.what() << std::endl;
