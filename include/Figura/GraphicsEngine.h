@@ -7,15 +7,15 @@ namespace fgr {
 
     class GraphicsEngine {
         GLFWwindow* window = nullptr;
-        std::unordered_map<std::string, ScenePtr> scenes;
+        std::unordered_map<std::string, SCENE> scenes;
         public:
 
         void     initWindow(int width,int height,const char* title);
         void     deleteWindow();
 
-        ScenePtr createScene(std::string name);
-        ScenePtr getScene(std::string name);
-        void     deleteScene(std::string name);
+        SCENE   createScene(std::string name);
+        SCENE   getScene(std::string name);
+        void    deleteScene(std::string name);
 
         bool     isWindowOpen();
         void     updateWindow();

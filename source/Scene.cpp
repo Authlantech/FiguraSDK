@@ -1,16 +1,15 @@
 #include <Figura/GraphicsEngine.h>
-#include <set>
 
 using namespace fgr;
 
-ModelPtr Scene::createModel(std::string name) {
-    ModelPtr model = std::make_shared<Model>();
+MODEL Scene::createModel(std::string name) {
+    MODEL model = std::make_shared<Model>();
     models[name] = model;
     return model;
 }
 
 void Scene::createModel(std::string name, std::string path) {
-    ModelPtr model = std::make_shared<Model>();
+    MODEL model = std::make_shared<Model>();
     models[name] = model;
 
     std::promise<void> promise;
@@ -25,58 +24,68 @@ void Scene::createModel(std::string name, std::string path) {
     load_thread.detach();
 }
 
-void Scene::renderModel(std::string name) {
+void Scene::RenderModel(std::string name) {
     auto model = getModel(name);
     if (model != nullptr) {
-        currentShader->use();
-        currentCamera->use(currentShader);
+        if (load_status.find(name) != load_status.end()) {
+            if (load_status[name].wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+                model->LoadFromData(loaded_data[name]);
+                load_status.erase(name);
+                loaded_data.erase(name);
+            }
+        }
+
+        if (currentShader != nullptr)
+            currentShader->use();
+        if (currentCamera != nullptr)
+            currentCamera->use(currentShader);
+
         model->Render(currentShader);
     }
 }
 
-
-ShaderPtr Scene::createShader(std::string name) {
-    ShaderPtr shader = std::make_shared<Shader>();
+SHADER Scene::createShader(std::string name) {
+    SHADER shader = std::make_shared<Shader>();
     shaders[name] = shader;
     return shader;
 }
 
 void Scene::useShader(std::string name) {
-    ShaderPtr shader = getShader(name);
+    SHADER shader = getShader(name);
     if (shader != nullptr) {
         currentShader = shader;
         currentShader->use();
     }
 }
 
-CameraPtr Scene::createCamera(std::string name) {
-    CameraPtr camera = std::make_shared<Camera>();
+CAMERA Scene::createCamera(std::string name) {
+    CAMERA camera = std::make_shared<Camera>();
     cameras[name] = camera;
     return camera;
 }
 
 void Scene::useCamera(std::string name) {
-    CameraPtr camera = getCamera(name);
+    CAMERA camera = getCamera(name);
     if (camera != nullptr) {
         currentCamera = camera;
         currentCamera->use(currentShader);
     }
 }
 
-DirectionalLightPtr Scene::createDirectionalLight(std::string name,glm::vec3 direction,glm::vec3 color) {
-    DirectionalLightPtr light = std::make_shared<DirectionalLight>(direction,color);
+DIRECTIONAL_LIGHT Scene::createDirectionalLight(std::string name,glm::vec3 direction,glm::vec3 color) {
+    DIRECTIONAL_LIGHT light = std::make_shared<DirectionalLight>(direction,color);
     directional_lights[name] = light;
     return light;
 }
 
-PointLightPtr Scene::createPointLight(std::string name,glm::vec3 position,glm::vec3 color) {
-    PointLightPtr light = std::make_shared<PointLight>(position,color);
+POINT_LIGHT Scene::createPointLight(std::string name,glm::vec3 position,glm::vec3 color) {
+    POINT_LIGHT light = std::make_shared<PointLight>(position,color);
     point_lights[name] = light;
     return light;
 }
 
-SpotLightPtr Scene::createSpotLight(std::string name, glm::vec3 position, glm::vec3 color, glm::vec3 orientation, float angle) {
-    SpotLightPtr light = std::make_shared<SpotLight>(position, color, orientation, angle);
+SPOT_LIGHT Scene::createSpotLight(std::string name, glm::vec3 position, glm::vec3 color, glm::vec3 orientation, float angle) {
+    SPOT_LIGHT light = std::make_shared<SpotLight>(position, color, orientation, angle);
     spot_lights[name] = light;
     return light;
 }
@@ -105,8 +114,8 @@ void Scene::deleteSpotLight(std::string name) {
     spot_lights.erase(name);
 }
 
-ModelPtr Scene::getModel(std::string name) {
-    ModelPtr model = nullptr;
+MODEL Scene::getModel(std::string name) {
+    MODEL model = nullptr;
     try {
         model = models.at(name);
     }
@@ -119,8 +128,8 @@ ModelPtr Scene::getModel(std::string name) {
     return model;
 }
 
-ShaderPtr Scene::getShader(std::string name) {
-    ShaderPtr shader = nullptr;
+SHADER Scene::getShader(std::string name) {
+    SHADER shader = nullptr;
     try {
         shader = shaders.at(name);
     }
@@ -131,8 +140,8 @@ ShaderPtr Scene::getShader(std::string name) {
     return shader;
 }
 
-CameraPtr Scene::getCamera(std::string name) {
-    CameraPtr camera =  nullptr;
+CAMERA Scene::getCamera(std::string name) {
+    CAMERA camera =  nullptr;
     try {
         camera = cameras.at(name);
     }
@@ -143,8 +152,8 @@ CameraPtr Scene::getCamera(std::string name) {
     return camera;
 }
 
-DirectionalLightPtr Scene::getDirectionalLight(std::string name) {
-    DirectionalLightPtr directional_light = nullptr;
+DIRECTIONAL_LIGHT Scene::getDirectionalLight(std::string name) {
+    DIRECTIONAL_LIGHT directional_light = nullptr;
     try {
         directional_light = directional_lights.at(name);
     }
@@ -155,8 +164,8 @@ DirectionalLightPtr Scene::getDirectionalLight(std::string name) {
     return directional_light;
 }
 
-PointLightPtr Scene::getPointLight(std::string name) {
-    PointLightPtr point_light = nullptr;
+POINT_LIGHT Scene::getPointLight(std::string name) {
+    POINT_LIGHT point_light = nullptr;
     try {
         point_light = point_lights.at(name);
     }
@@ -167,8 +176,8 @@ PointLightPtr Scene::getPointLight(std::string name) {
     return point_light;
 }
 
-SpotLightPtr Scene::getSpotLight(std::string name) {
-    SpotLightPtr spot_light = nullptr;
+SPOT_LIGHT Scene::getSpotLight(std::string name) {
+    SPOT_LIGHT spot_light = nullptr;
     try {
         spot_light = spot_lights.at(name);
     }
@@ -179,23 +188,51 @@ SpotLightPtr Scene::getSpotLight(std::string name) {
     return spot_light;
 }
 
-void Scene::RenderScene() {
-    if (currentShader == nullptr)
-        return;
-    if (currentCamera == nullptr)
-        return;
-
-    currentShader->use();
-    currentCamera->use(currentShader);
-
-    for (const auto model : models) {
-        if (load_status.find(model.first) != load_status.end()) {
-            if (load_status[model.first].wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
-                model.second->LoadFromData(loaded_data[model.first]);
-                load_status.erase(model.first);
-                loaded_data.erase(model.first);
-            }
-        }
-        model.second->Render(currentShader);
+std::vector<std::string> Scene::get_all_model_names() {
+    std::vector<std::string> names;
+    for (auto m : models) {
+        names.push_back(m.first);
     }
+    return names;
 }
+
+std::vector<std::string> Scene::get_all_shader_names() {
+    std::vector<std::string> names;
+    for (auto m : shaders) {
+        names.push_back(m.first);
+    }
+    return names;
+}
+
+std::vector<std::string> Scene::get_all_cameras_names() {
+    std::vector<std::string> names;
+    for (auto m : cameras) {
+        names.push_back(m.first);
+    }
+    return names;
+}
+
+std::vector<std::string> Scene::get_all_directional_light_names() {
+    std::vector<std::string> names;
+    for (auto m : directional_lights) {
+        names.push_back(m.first);
+    }
+    return names;
+}
+
+std::vector<std::string> Scene::get_all_point_light_names() {
+    std::vector<std::string> names;
+    for (auto m : point_lights) {
+        names.push_back(m.first);
+    }
+    return names;
+}
+
+std::vector<std::string> Scene::get_all_spot_light_names() {
+    std::vector<std::string> names;
+    for (auto m : spot_lights) {
+        names.push_back(m.first);
+    }
+    return names;
+}
+

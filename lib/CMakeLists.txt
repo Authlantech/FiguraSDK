@@ -14,6 +14,7 @@ add_library (
 	"../source/light.cpp"
 		"../source/Scene.cpp"
 		"../source/GraphicsEngine.cpp"
+		../source/Skybox.cpp
 )
 
 target_include_directories("FiguraSDK" 

@@ -40,8 +40,8 @@ void GraphicsEngine::deleteWindow() {
 
 }
 
-ScenePtr GraphicsEngine::createScene(std::string name) {
-    ScenePtr scene = std::make_shared<Scene>();
+SCENE GraphicsEngine::createScene(std::string name) {
+    SCENE scene = std::make_shared<Scene>();
     scenes[name] = scene;
 
     auto modelShader = scene->createShader("figura_default_model_shader");
@@ -58,8 +58,8 @@ ScenePtr GraphicsEngine::createScene(std::string name) {
     return scene;
 }
 
-ScenePtr GraphicsEngine::getScene(const std::string name) {
-    ScenePtr scene = nullptr;
+SCENE GraphicsEngine::getScene(const std::string name) {
+    SCENE scene = nullptr;
     try {
         scene = scenes.at(name);
     }

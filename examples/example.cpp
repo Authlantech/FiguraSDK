@@ -37,7 +37,7 @@ int main()
 	while (engine.isWindowOpen())
 	{					
 		scene->getModel("model1")->rotate({ 0,1,0 }, 4.f);
-		scene->RenderScene();
+		scene->RenderModel("model1");
 		engine.updateWindow();
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long>(1000.f / 60.f)));

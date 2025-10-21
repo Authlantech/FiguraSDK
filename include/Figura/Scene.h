@@ -11,43 +11,43 @@
 
 namespace fgr {
 
-    typedef std::shared_ptr<fgr::Model>             ModelPtr;
-    typedef std::shared_ptr<fgr::Shader>            ShaderPtr;
-    typedef std::shared_ptr<fgr::Camera>            CameraPtr;
-    typedef std::shared_ptr<fgr::DirectionalLight>  DirectionalLightPtr;
-    typedef std::shared_ptr<fgr::PointLight>        PointLightPtr;
-    typedef std::shared_ptr<fgr::SpotLight>         SpotLightPtr;
+    typedef std::shared_ptr<fgr::Model>             MODEL;
+    typedef std::shared_ptr<fgr::Shader>            SHADER;
+    typedef std::shared_ptr<fgr::Camera>            CAMERA;
+    typedef std::shared_ptr<fgr::DirectionalLight>  DIRECTIONAL_LIGHT;
+    typedef std::shared_ptr<fgr::PointLight>        POINT_LIGHT;
+    typedef std::shared_ptr<fgr::SpotLight>         SPOT_LIGHT;
 
     class Scene {
-        std::unordered_map<std::string, ModelPtr>             models;
-        std::unordered_map<std::string, ShaderPtr>            shaders;
-        std::unordered_map<std::string, CameraPtr>            cameras;
-        std::unordered_map<std::string, DirectionalLightPtr>  directional_lights;
-        std::unordered_map<std::string, PointLightPtr>        point_lights;
-        std::unordered_map<std::string, SpotLightPtr>         spot_lights;
+        std::unordered_map<std::string, MODEL>              models;
+        std::unordered_map<std::string, SHADER>             shaders;
+        std::unordered_map<std::string, CAMERA>             cameras;
+        std::unordered_map<std::string, DIRECTIONAL_LIGHT>  directional_lights;
+        std::unordered_map<std::string, POINT_LIGHT>        point_lights;
+        std::unordered_map<std::string, SPOT_LIGHT>         spot_lights;
 
-        ShaderPtr currentShader;
-        CameraPtr currentCamera;
+        SHADER currentShader;
+        CAMERA currentCamera;
     public :
         Scene() = default;
         ~Scene() = default;
 
-        ModelPtr            createModel(std::string name);
-        void                createModel(std::string name,std::string path);
-        void                renderModel(std::string name);
+        MODEL   createModel(std::string name);
+        void    createModel(std::string name,std::string path);
+        void    RenderModel(std::string name);
     private :
         std::unordered_map<std::string,std::future<void> > load_status;
         std::unordered_map<std::string,MODEL_DATA >       loaded_data;
     public :
-        ShaderPtr           createShader(std::string name);
-        void                useShader(std::string name);
+        SHADER  createShader(std::string name);
+        void    useShader(std::string name);
 
-        CameraPtr           createCamera(std::string name);
-        void                useCamera(std::string name);
+        CAMERA  createCamera(std::string name);
+        void    useCamera(std::string name);
 
-        DirectionalLightPtr createDirectionalLight(std::string name,glm::vec3 direction, glm::vec3 color);
-        PointLightPtr       createPointLight(std::string name,glm::vec3 position,glm::vec3 color);
-        SpotLightPtr        createSpotLight(std::string name,glm::vec3 position,glm::vec3 color,glm::vec3 orientation,float angle);
+        DIRECTIONAL_LIGHT   createDirectionalLight(std::string name,glm::vec3 direction, glm::vec3 color);
+        POINT_LIGHT         createPointLight(std::string name,glm::vec3 position,glm::vec3 color);
+        SPOT_LIGHT          createSpotLight(std::string name,glm::vec3 position,glm::vec3 color,glm::vec3 orientation,float angle);
 
         void deleteModel(std::string name);
         void deleteShader(std::string name);
@@ -56,12 +56,12 @@ namespace fgr {
         void deletePointLight(std::string name);
         void deleteSpotLight(std::string name);
 
-        ModelPtr            getModel(std::string name);
-        ShaderPtr           getShader(std::string name);
-        CameraPtr           getCamera(std::string name);
-        DirectionalLightPtr getDirectionalLight(std::string name);
-        PointLightPtr       getPointLight(std::string name);
-        SpotLightPtr        getSpotLight(std::string name);
+        MODEL             getModel(std::string name);
+        SHADER            getShader(std::string name);
+        CAMERA            getCamera(std::string name);
+        DIRECTIONAL_LIGHT getDirectionalLight(std::string name);
+        POINT_LIGHT       getPointLight(std::string name);
+        SPOT_LIGHT        getSpotLight(std::string name);
 
         std::vector<std::string> get_all_model_names();
         std::vector<std::string> get_all_shader_names();
@@ -69,10 +69,8 @@ namespace fgr {
         std::vector<std::string> get_all_directional_light_names();
         std::vector<std::string> get_all_point_light_names();
         std::vector<std::string> get_all_spot_light_names();
-
-        void RenderScene();
     };
 
-    typedef std::shared_ptr<Scene> ScenePtr;
+    typedef std::shared_ptr<Scene> SCENE;
 
 }

@@ -31,4 +31,5 @@ add_executable(
 		"../source/light.cpp"
 		"../source/Scene.cpp"
 		"../source/GraphicsEngine.cpp"
+		../source/Skybox.cpp
 )
