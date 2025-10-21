@@ -224,3 +224,11 @@ MODEL_DATA Model::LoadModelData(std::string path) {
 
 	return loaded_data;
 }
+
+MODEL_DATA Model::LoadModelData(std::vector<MESH_DATA> meshes) {
+	MODEL_DATA loaded_data;
+	for (unsigned int i = 0; i < meshes.size(); i++) {
+		loaded_data.model_meshes.push_back(meshes[i]);
+	}
+	return loaded_data;
+}

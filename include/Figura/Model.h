@@ -24,9 +24,10 @@ namespace fgr {
 		void scale(float v);
 		void rotate(glm::vec3 v, float angle);
 		glm::vec3 get_position();
-		void LoadFromData(MODEL_DATA data);
 
+		void LoadFromData(MODEL_DATA data);
 		static MODEL_DATA LoadModelData(std::string path);
+		static MODEL_DATA LoadModelData(std::vector<MESH_DATA> meshes);
 	private :
 		void Render(std::shared_ptr<Shader> shader);
 	};

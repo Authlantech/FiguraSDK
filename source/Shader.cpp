@@ -18,7 +18,7 @@ Shader::~Shader()
 	glDeleteProgram(program);
 }
 
-void Shader::load_from_buffer(
+void Shader::LoadFromBuffer(
 	const char* vertex_shader, 
 	const char* fragment_shader, 
 	const char* geometry_shader
@@ -42,21 +42,10 @@ void Shader::load_from_buffer(
 	glLinkProgram(program);
 }
 
-void Shader::load_from_file(
-	const char* vertex_shader_path,
-	const char* fragment_shader_path, 
-	const char* geometry_shader_path
-)
-{
-
-}
-
 void Shader::use()
 {
 	glUseProgram(program);
 }
-
-
 
 void Shader::uniformmat4f(const char* name, glm::mat4 val)
 {

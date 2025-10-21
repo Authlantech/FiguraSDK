@@ -13,13 +13,17 @@ namespace fgr {
 	class Texture
 	{
 		unsigned int id = 0;
-	public:		
+	public:
+		friend class Mesh;
+		friend class Model;
 		Texture();
 		~Texture();
 
 		bool LoadFromData(TEXTURE_DATA data);
+	private:
 		void bind(const GLenum texture_unit = GL_TEXTURE0) const;
 		static void unbind(const GLenum texture_unit = GL_TEXTURE0);
+	public :
 		static TEXTURE_DATA LoadTextureData(const char* file_path);
 	};
 

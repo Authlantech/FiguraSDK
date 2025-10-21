@@ -298,8 +298,7 @@ namespace fgr {
         Shader();
         ~Shader();
 
-		void load_from_buffer(const char* vertex_shader, const char* fragment_shader,const char* geometry_shader = nullptr);
-		void load_from_file(const char* vertex_shader_path,const char* fragment_shader_path,const char* geometry_shader_path = nullptr);
+		void LoadFromBuffer(const char* vertex_shader, const char* fragment_shader,const char* geometry_shader = nullptr);
 	private :
 		void use();
 		void uniformmat4f(const char* name, glm::mat4 val);

@@ -45,13 +45,13 @@ ScenePtr GraphicsEngine::createScene(std::string name) {
     scenes[name] = scene;
 
     auto modelShader = scene->createShader("figura_default_model_shader");
-    modelShader->load_from_buffer(model_vs,model_fs);
+    modelShader->LoadFromBuffer(model_vs,model_fs);
 
     auto normalShader = scene->createShader("figura_default_normal_shader");
-    normalShader->load_from_buffer(normal_vs,normal_fs,normal_gs);
+    normalShader->LoadFromBuffer(normal_vs,normal_fs,normal_gs);
 
     auto meshShader = scene->createShader("figura_default_mesh_shader");
-    meshShader->load_from_buffer(mesh_vs,mesh_fs,mesh_gs);
+    meshShader->LoadFromBuffer(mesh_vs,mesh_fs,mesh_gs);
 
     scene->useShader("figura_default_model_shader");
 

@@ -17,9 +17,10 @@ namespace fgr {
 	class VertexBuffer {
 		unsigned int id = 0;
 	public:
+		friend class Mesh;
 		VertexBuffer();
 		~VertexBuffer();
-
+	private :
 		void bind() const ;
 		void data(const Vertex* vertices,unsigned int size) const;
 		void set_layout() const;

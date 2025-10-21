@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.10)
 
 include_directories(
 	"../include"
@@ -18,7 +18,7 @@ link_libraries(
 add_executable(
 		"example_glfw"
 
-		"example_glfw.cpp"
+		"example.cpp"
 
 		"../source/camera.cpp"
 		"../source/indexbuffer.cpp"
