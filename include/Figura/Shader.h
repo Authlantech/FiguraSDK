@@ -291,10 +291,7 @@ namespace fgr {
 		unsigned int fshader = 0; 
 		unsigned int gshader = 0; 
 	public:
-		friend class Scene;
-		friend class Camera;
-		friend class Model;
-
+		friend class GraphicsEngine;
         Shader();
         ~Shader();
 

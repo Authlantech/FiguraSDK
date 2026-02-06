@@ -1,23 +1,57 @@
 #pragma once
 
-#include <Figura/Scene.h>
+#include <iostream>
+#include <queue>
+
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include <Figura/Model.h>
+#include <Figura/Camera.h>
 
 namespace fgr {
 
-    class GraphicsEngine {
+
+    struct WindowProperties
+    {
+        int width = 0; 
+        int height = 0; 
+        const char* tittle = 0;
+        int frames_per_second = 30;
+        GLint OpenGLContextVersionMajor = 4; 
+        GLint OpenGLContextVersionMinor = 6;
+    };
+
+    struct RenderItem
+    {
+        std::shared_ptr<Shader> shader = nullptr; 
+        std::shared_ptr<Model>  model = nullptr; 
+        std::shared_ptr<Camera> camera = nullptr;
+    };
+
+    class GraphicsEngine
+    {
+    protected : 
         GLFWwindow* window = nullptr;
-        std::unordered_map<std::string, SCENE> scenes;
-        public:
+        WindowProperties properties = {};
 
-        void     initWindow(int width,int height,const char* title);
-        void     deleteWindow();
+        std::queue<RenderItem> render_queue;
 
-        SCENE   createScene(std::string name);
-        SCENE   getScene(std::string name);
-        void    deleteScene(std::string name);
+        std::shared_ptr<Shader> default_shader; 
+        std::shared_ptr<Camera> default_camera;
+    public:
+        GraphicsEngine(WindowProperties properties); 
+        ~GraphicsEngine(); 
 
-        bool     isWindowOpen();
-        void     updateWindow();
+        void SetDefaultShader(std::shared_ptr<Shader> shader); 
+        void SetDefaultCamera(std::shared_ptr<Camera> camera); 
+
+        void AppendRenderQueue(RenderItem item); 
+        void ClearRenderQueue();
+        void Render();
+
+        void LoadModel(std::shared_ptr<Model> model,std::string file);
+        bool IsWindowOpen();
+        void UpdateWindow(); 
     };
 }

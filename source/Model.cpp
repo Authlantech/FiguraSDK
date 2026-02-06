@@ -8,20 +8,46 @@
 
 using namespace fgr;
 
+void Model::updateModelMatrix()
+{
+	modelMatrix = translation * rotation * scaling;
+}
+
+void Model::updateNormalMatrix()
+{
+	normalMatrix = glm::transpose(glm::inverse(modelMatrix));
+}
+
+glm::mat4 Model::get_modelMatrix()
+{
+	return modelMatrix;
+}
+
+glm::mat4 Model::get_normalMatrix()
+{
+	return normalMatrix;
+}
+
 void Model::set_position(glm::vec3 position)
 {
 	translation = glm::translate(glm::mat4(1.f), position);
 	this->position = position;
+	updateModelMatrix(); 
+	updateNormalMatrix();
 }
 
 void Model::scale(float v)
 {
 	scaling = glm::scale(glm::mat4(1.f), glm::vec3(v,v,v));
+	updateModelMatrix();
+	updateNormalMatrix();
 }
 
 void Model::rotate(glm::vec3 v, float angle)
 {
 	rotation =  glm::rotate(glm::mat4(1.f), glm::radians(angle), glm::normalize(v)) * rotation;
+	updateModelMatrix();
+	updateNormalMatrix();
 }
 
 glm::vec3 Model::get_position()
@@ -29,31 +55,26 @@ glm::vec3 Model::get_position()
 	return position;
 }
 
-void Model::Render(std::shared_ptr<Shader> shader)
-{
-		glm::mat4 modelMatrix = translation * rotation * scaling;
-		glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelMatrix));
-		shader->uniformmat4f("modelMatrix", modelMatrix);
-		shader->uniformmat4f("normalMatrix", normalMatrix);
-		for (int a = 0; a < meshes.size(); a++)
+void Model::Render()
+{		for (int a = 0; a < meshes.size(); a++)
 		{
 			fgr::Texture::unbind(GL_TEXTURE0);
 			fgr::Texture::unbind(GL_TEXTURE1);
 			fgr::Texture::unbind(GL_TEXTURE2);
 			fgr::Texture::unbind(GL_TEXTURE3);
 			fgr::Texture::unbind(GL_TEXTURE4);
-
 			meshes[a]->Render();
 		}
 }
 
-void Model::LoadFromData(MODEL_DATA data) {
+void Model::LoadFromData(model_data data) {
 	meshes.clear();
 	for (auto& d : data.model_meshes) {
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->LoadFromData(d);
 		meshes.push_back(mesh);
 	}
+
 }
 
 
@@ -86,9 +107,9 @@ void processNode(aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform
 
 }
 
-MODEL_DATA Model::LoadModelData(std::string path) {
+model_data fgr::LoadModelData(std::string path) {
 
-	MODEL_DATA loaded_data;
+	model_data loaded_data;
 
 	std::string fpath = path;
 
@@ -225,10 +246,3 @@ MODEL_DATA Model::LoadModelData(std::string path) {
 	return loaded_data;
 }
 
-MODEL_DATA Model::LoadModelData(std::vector<MESH_DATA> meshes) {
-	MODEL_DATA loaded_data;
-	for (unsigned int i = 0; i < meshes.size(); i++) {
-		loaded_data.model_meshes.push_back(meshes[i]);
-	}
-	return loaded_data;
-}

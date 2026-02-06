@@ -1,91 +1,158 @@
 #include <Figura/GraphicsEngine.h>
+#include <chrono>
 
 using namespace fgr;
 
+GraphicsEngine::GraphicsEngine(WindowProperties properties) : properties(properties)
+{
+	// Initialize GLFW
+	if (!glfwInit()) {
+		std::cerr << "Failed to initialize GLFW" << std::endl;
+		return;
+	}
 
-void GraphicsEngine::initWindow(int width,int height,const char* title) {
+	// Configure OpenGL context
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, properties.OpenGLContextVersionMajor);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, properties.OpenGLContextVersionMinor);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Init GLFW
-    int res = glfwInit();
-    if (res == GLFW_FALSE)
-    {
-        printf("glfw could not be initilaized!\n");
-        exit(-1);
-    }
+	// Create window
+	window = glfwCreateWindow(
+		properties.width, 
+		properties.height, 
+		properties.tittle, 
+		nullptr, 
+		nullptr
+	);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	if (!window) {
+		std::cerr << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return;
+	}
 
-    // Create window
+	glfwMakeContextCurrent(window);
 
-    window = glfwCreateWindow(width, height, title, 0, 0);
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+	// Initialize GLAD
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		std::cerr << "Failed to initialize GLAD" << std::endl;
+		glfwDestroyWindow(window);
+		glfwTerminate();
+		window = nullptr;
+		return;
+	}
 
-    // Init glad
-    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+	// Set up default OpenGL state
+	glEnable(GL_DEPTH_TEST);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-    //Begin Light Buffers
-    fgr::DirectionalLight::begin_directional_lights();
-    fgr::PointLight::begin_point_lights();
-    fgr::SpotLight::begin_spot_light();
-
-    //Enable Depth Testing and Face Culling :
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+	// Load default shader from hardcoded source in Shader.h
+	default_shader = std::make_shared<Shader>();
+	default_shader->LoadFromBuffer(model_vs, model_fs);
 }
 
-void GraphicsEngine::deleteWindow() {
-
+GraphicsEngine::~GraphicsEngine()
+{
+	if (window) {
+		glfwDestroyWindow(window);
+	}
+	glfwTerminate();
 }
 
-SCENE GraphicsEngine::createScene(std::string name) {
-    SCENE scene = std::make_shared<Scene>();
-    scenes[name] = scene;
-
-    auto modelShader = scene->createShader("figura_default_model_shader");
-    modelShader->LoadFromBuffer(model_vs,model_fs);
-
-    auto normalShader = scene->createShader("figura_default_normal_shader");
-    normalShader->LoadFromBuffer(normal_vs,normal_fs,normal_gs);
-
-    auto meshShader = scene->createShader("figura_default_mesh_shader");
-    meshShader->LoadFromBuffer(mesh_vs,mesh_fs,mesh_gs);
-
-    scene->useShader("figura_default_model_shader");
-
-    return scene;
+void GraphicsEngine::SetDefaultShader(std::shared_ptr<Shader> shader)
+{
+	default_shader = shader;
 }
 
-SCENE GraphicsEngine::getScene(const std::string name) {
-    SCENE scene = nullptr;
-    try {
-        scene = scenes.at(name);
-    }
-    catch (std::exception& e) {
-        std::cout << e.what() << std::endl;
-        return nullptr;
-    }
-    return scene;
+void GraphicsEngine::SetDefaultCamera(std::shared_ptr<Camera> camera)
+{
+	default_camera = camera;
 }
 
-void GraphicsEngine::deleteScene(const std::string name) {
-
+void GraphicsEngine::AppendRenderQueue(RenderItem item)
+{
+	render_queue.push(item);
 }
 
-bool GraphicsEngine::isWindowOpen() {
-    return !glfwWindowShouldClose(window);
+void GraphicsEngine::ClearRenderQueue()
+{
+	// Clear the queue by swapping with an empty queue
+	std::queue<RenderItem> empty;
+	std::swap(render_queue, empty);
 }
 
-void GraphicsEngine::updateWindow() {
-    glfwPollEvents();
-    glfwSwapBuffers(window);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0, 0.4, 1, 0);
+void GraphicsEngine::LoadModel(std::shared_ptr<Model> model, std::string file)
+{
+	// Launch LoadModelData in a background thread using std::async
+	// The result is stored in the model's is_loaded future
+	model->is_loaded = std::async(std::launch::async, LoadModelData, file);
 }
 
+void GraphicsEngine::Render()
+{
+	while (!render_queue.empty()) {
+		RenderItem item = render_queue.front();
+		render_queue.pop();
 
+		if (!item.model) {
+			continue;
+		}
 
+		// Check if model has pending data to load from async operation
+		if (item.model->is_loaded.valid()) {
+			// Check if the future is ready without blocking
+			auto status = item.model->is_loaded.wait_for(std::chrono::seconds(0));
+			if (status == std::future_status::ready) {
+				// Load the model data on the main thread (OpenGL context)
+				model_data data = item.model->is_loaded.get();
+				item.model->LoadFromData(data);
+				// Future is now invalid (reset) after get(), preventing multiple loads
+			}
+		}
 
+		// Determine which shader to use
+		std::shared_ptr<Shader> shader = item.shader ? item.shader : default_shader;
+		if (!shader) {
+			continue; // No shader available, skip this item
+		}
+
+		// Determine which camera to use
+		std::shared_ptr<Camera> camera = item.camera ? item.camera : default_camera;
+		if (!camera) {
+			continue; // No camera available, skip this item
+		}
+
+		// Use shader
+		shader->use();
+
+		// Set camera uniforms directly (view and projection matrices)
+		glm::vec3 camPos = camera->get_position();
+		shader->uniformvec3("viewPos", camPos.x, camPos.y, camPos.z);
+		shader->uniformmat4f("projectionMatrix", camera->get_projectionMatrix());
+		shader->uniformmat4f("viewMatrix", camera->get_viewMatrix());
+
+		// Set model uniforms
+		shader->uniformmat4f("modelMatrix", item.model->get_modelMatrix());
+		shader->uniformmat4f("normalMatrix", item.model->get_normalMatrix());
+
+		// Render the model
+		item.model->Render();
+	}
+}
+
+bool GraphicsEngine::IsWindowOpen()
+{
+	return window && !glfwWindowShouldClose(window);
+}
+
+void GraphicsEngine::UpdateWindow()
+{
+	// Swap front and back buffers
+	glfwSwapBuffers(window);
+
+	// Poll for events
+	glfwPollEvents();
+
+	// Clear buffers for next frame
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}

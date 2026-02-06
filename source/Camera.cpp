@@ -59,9 +59,3 @@ OrthographicAttribs Camera::give_orthographic_attribs()
 	return o_attribs;
 }
 
-void Camera::use(std::shared_ptr<Shader> shader)
-{
-	shader->uniformvec3("viewPos", position.x, position.y, position.z);
-	shader->uniformmat4f("projectionMatrix", projectionMatrix);
-	shader->uniformmat4f("viewMatrix", viewMatrix);
-}

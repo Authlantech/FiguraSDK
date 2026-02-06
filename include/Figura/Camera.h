@@ -38,7 +38,7 @@ namespace fgr {
 		OrthographicAttribs o_attribs = { 0 };
 
 	public:
-		friend class Scene;
+		friend class GraphicsEngine;
 
 		Camera() = default;
 		~Camera() = default;
@@ -57,8 +57,6 @@ namespace fgr {
 
 		PerspectiveAttribs give_perpective_attribs(); 
 		OrthographicAttribs give_orthographic_attribs();
-
-		void use(std::shared_ptr<Shader> shader);
 	};
 
 }

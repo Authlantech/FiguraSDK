@@ -26,6 +26,5 @@ add_executable(
 		../source/glad.c
 		../source/texture.cpp
 		../source/light.cpp
-		../source/Scene.cpp
 		../source/GraphicsEngine.cpp
 )

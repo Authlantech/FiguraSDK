@@ -11,7 +11,6 @@ add_library (
 		../source/glad.c
 		../source/texture.cpp
 		../source/light.cpp
-		../source/Scene.cpp
 		../source/GraphicsEngine.cpp
 )
 
