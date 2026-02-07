@@ -11,7 +11,6 @@
 
 namespace fgr {
 
-
     struct WindowProperties
     {
         int width = 0; 
@@ -26,7 +25,6 @@ namespace fgr {
     {
         std::shared_ptr<Shader> shader = nullptr; 
         std::shared_ptr<Model>  model = nullptr; 
-        std::shared_ptr<Camera> camera = nullptr;
     };
 
     class GraphicsEngine
@@ -43,14 +41,16 @@ namespace fgr {
         GraphicsEngine(WindowProperties properties); 
         ~GraphicsEngine(); 
 
-        void SetDefaultShader(std::shared_ptr<Shader> shader); 
-        void SetDefaultCamera(std::shared_ptr<Camera> camera); 
+        void ConfigureDefaultShader(std::shared_ptr<Shader> shader); 
+        void ConfigureCamera(std::shared_ptr<Camera> camera); 
+        void GetCameraMovement();
 
         void AppendRenderQueue(RenderItem item); 
         void ClearRenderQueue();
         void Render();
 
-        void LoadModel(std::shared_ptr<Model> model,std::string file);
+        std::shared_ptr<Model> LoadModelAsync(std::string file);
+        std::shared_ptr<Model> LoadModel(std::string file);
         bool IsWindowOpen();
         void UpdateWindow(); 
     };

@@ -16,6 +16,7 @@ namespace fgr {
 
 	class Mesh
 	{
+	protected:
 		unsigned int vertexarray = 0;
 		VertexBuffer vb;
 		IndexBuffer ib;
@@ -25,7 +26,7 @@ namespace fgr {
 		Mesh();
 		~Mesh();
 		static MESH_DATA CreateMeshData(std::vector<Vertex> vertices,std::vector<unsigned int> indices,std::vector<std::string>texture_file_paths);
-	private:
+	protected:
 		void LoadFromData(MESH_DATA data);
 		void Render() const;
 	};

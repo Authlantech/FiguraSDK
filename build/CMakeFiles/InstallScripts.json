@@ -1,0 +1,9 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/ehank/Desktop/FiguraSDK/build/cmake_install.cmake",
+		"C:/Users/ehank/Desktop/FiguraSDK/build/lib/cmake_install.cmake",
+		"C:/Users/ehank/Desktop/FiguraSDK/build/examples/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

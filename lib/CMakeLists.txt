@@ -10,7 +10,6 @@ add_library (
 		../source/vertexbuffer.cpp
 		../source/glad.c
 		../source/texture.cpp
-		../source/light.cpp
 		../source/GraphicsEngine.cpp
 )
 

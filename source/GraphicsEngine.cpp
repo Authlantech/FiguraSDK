@@ -46,9 +46,6 @@ GraphicsEngine::GraphicsEngine(WindowProperties properties) : properties(propert
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-	// Load default shader from hardcoded source in Shader.h
-	default_shader = std::make_shared<Shader>();
-	default_shader->LoadFromBuffer(model_vs, model_fs);
 }
 
 GraphicsEngine::~GraphicsEngine()
@@ -59,14 +56,92 @@ GraphicsEngine::~GraphicsEngine()
 	glfwTerminate();
 }
 
-void GraphicsEngine::SetDefaultShader(std::shared_ptr<Shader> shader)
+void GraphicsEngine::ConfigureDefaultShader(std::shared_ptr<Shader> shader)
 {
 	default_shader = shader;
 }
 
-void GraphicsEngine::SetDefaultCamera(std::shared_ptr<Camera> camera)
+void GraphicsEngine::ConfigureCamera(std::shared_ptr<Camera> camera)
 {
 	default_camera = camera;
+}
+
+void GraphicsEngine::GetCameraMovement()
+{
+	float deltaTime = 1.f / properties.frames_per_second;
+
+	if (!default_camera || !window) {
+		return;
+	}
+
+	float speed = 5.0f * deltaTime;
+	glm::vec3 position = default_camera->get_position();
+	glm::vec3 orientation = default_camera->get_oreintation();
+	glm::vec3 right = glm::normalize(glm::cross(orientation, glm::vec3(0.f, 1.f, 0.f)));
+
+	// WASD movement
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		position += orientation * speed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		position -= orientation * speed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+		position -= right * speed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		position += right * speed;
+	}
+
+	// Up/Down movement
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+		position += glm::vec3(0.f, 1.f, 0.f) * speed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+		position -= glm::vec3(0.f, 1.f, 0.f) * speed;
+	}
+
+	default_camera->set_position(position);
+
+	// Mouse look (when right mouse button is held)
+	static bool firstMouse = true;
+	static double lastX = 0.0, lastY = 0.0;
+	static float yaw = -90.0f, pitch = 0.0f;
+
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+		double mouseX, mouseY;
+		glfwGetCursorPos(window, &mouseX, &mouseY);
+
+		if (firstMouse) {
+			lastX = mouseX;
+			lastY = mouseY;
+			firstMouse = false;
+		}
+
+		float sensitivity = 0.1f;
+		float xOffset = static_cast<float>(mouseX - lastX) * sensitivity;
+		float yOffset = static_cast<float>(lastY - mouseY) * sensitivity;
+
+		lastX = mouseX;
+		lastY = mouseY;
+
+		yaw += xOffset;
+		pitch += yOffset;
+
+		// Clamp pitch to avoid flipping
+		if (pitch > 89.0f) pitch = 89.0f;
+		if (pitch < -89.0f) pitch = -89.0f;
+
+		glm::vec3 newOrientation;
+		newOrientation.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+		newOrientation.y = sin(glm::radians(pitch));
+		newOrientation.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		
+		default_camera->face(default_camera->get_position() + glm::normalize(newOrientation));
+	}
+	else {
+		firstMouse = true;
+	}
 }
 
 void GraphicsEngine::AppendRenderQueue(RenderItem item)
@@ -76,16 +151,23 @@ void GraphicsEngine::AppendRenderQueue(RenderItem item)
 
 void GraphicsEngine::ClearRenderQueue()
 {
-	// Clear the queue by swapping with an empty queue
 	std::queue<RenderItem> empty;
 	std::swap(render_queue, empty);
 }
 
-void GraphicsEngine::LoadModel(std::shared_ptr<Model> model, std::string file)
+std::shared_ptr<Model> GraphicsEngine::LoadModelAsync(std::string file)
 {
-	// Launch LoadModelData in a background thread using std::async
-	// The result is stored in the model's is_loaded future
-	model->is_loaded = std::async(std::launch::async, LoadModelData, file);
+	std::shared_ptr<Model> new_model = std::make_shared<Model>();
+	new_model->is_loaded = std::async(std::launch::async, &Model::LoadModelData, file);
+	return new_model;
+}
+
+std::shared_ptr<Model> GraphicsEngine::LoadModel(std::string file)
+{
+	std::shared_ptr<Model> new_model = std::make_shared<Model>();
+	model_data dat = Model::LoadModelData(file);
+	new_model->LoadFromData(dat);
+	return new_model;
 }
 
 void GraphicsEngine::Render()
@@ -116,20 +198,18 @@ void GraphicsEngine::Render()
 			continue; // No shader available, skip this item
 		}
 
-		// Determine which camera to use
-		std::shared_ptr<Camera> camera = item.camera ? item.camera : default_camera;
-		if (!camera) {
-			continue; // No camera available, skip this item
+		if(!default_camera) {
+			continue;
 		}
 
 		// Use shader
 		shader->use();
 
 		// Set camera uniforms directly (view and projection matrices)
-		glm::vec3 camPos = camera->get_position();
+		glm::vec3 camPos = default_camera->get_position();
 		shader->uniformvec3("viewPos", camPos.x, camPos.y, camPos.z);
-		shader->uniformmat4f("projectionMatrix", camera->get_projectionMatrix());
-		shader->uniformmat4f("viewMatrix", camera->get_viewMatrix());
+		shader->uniformmat4f("projectionMatrix", default_camera->get_projectionMatrix());
+		shader->uniformmat4f("viewMatrix", default_camera->get_viewMatrix());
 
 		// Set model uniforms
 		shader->uniformmat4f("modelMatrix", item.model->get_modelMatrix());
@@ -155,4 +235,7 @@ void GraphicsEngine::UpdateWindow()
 
 	// Clear buffers for next frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Wait for target FPS
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000 / properties.frames_per_second));
 }

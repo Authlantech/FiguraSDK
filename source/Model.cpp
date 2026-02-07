@@ -107,7 +107,7 @@ void processNode(aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform
 
 }
 
-model_data fgr::LoadModelData(std::string path) {
+model_data fgr::Model::LoadModelData(std::string path) {
 
 	model_data loaded_data;
 

@@ -13,8 +13,6 @@ namespace fgr {
 		std::vector<MESH_DATA> model_meshes;
 	};
 
-	model_data LoadModelData(std::string file);
-
 	class Model {
 	protected :
 		std::vector<std::shared_ptr<Mesh>> meshes;
@@ -34,7 +32,7 @@ namespace fgr {
 		std::future<model_data> is_loaded;
 		void LoadFromData(model_data data);
 		void Render();
-
+		static model_data LoadModelData(std::string file);
 	public:
 		friend class GraphicsEngine;
 		Model() = default;

@@ -1,0 +1,116 @@
+[
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\lib\\..\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Folib\\CMakeFiles\\FiguraSDK.dir\\__\\source\\camera.cpp.obj /Fdlib\\CMakeFiles\\FiguraSDK.dir\\FiguraSDK.pdb /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\camera.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/camera.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/FiguraSDK.dir/__/source/camera.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\lib\\..\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Folib\\CMakeFiles\\FiguraSDK.dir\\__\\source\\indexbuffer.cpp.obj /Fdlib\\CMakeFiles\\FiguraSDK.dir\\FiguraSDK.pdb /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\indexbuffer.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/indexbuffer.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/FiguraSDK.dir/__/source/indexbuffer.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\lib\\..\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Folib\\CMakeFiles\\FiguraSDK.dir\\__\\source\\mesh.cpp.obj /Fdlib\\CMakeFiles\\FiguraSDK.dir\\FiguraSDK.pdb /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\mesh.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/mesh.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/FiguraSDK.dir/__/source/mesh.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\lib\\..\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Folib\\CMakeFiles\\FiguraSDK.dir\\__\\source\\model.cpp.obj /Fdlib\\CMakeFiles\\FiguraSDK.dir\\FiguraSDK.pdb /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\model.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/model.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/FiguraSDK.dir/__/source/model.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\lib\\..\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Folib\\CMakeFiles\\FiguraSDK.dir\\__\\source\\shader.cpp.obj /Fdlib\\CMakeFiles\\FiguraSDK.dir\\FiguraSDK.pdb /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\shader.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/shader.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/FiguraSDK.dir/__/source/shader.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\lib\\..\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Folib\\CMakeFiles\\FiguraSDK.dir\\__\\source\\vertexbuffer.cpp.obj /Fdlib\\CMakeFiles\\FiguraSDK.dir\\FiguraSDK.pdb /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\vertexbuffer.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/vertexbuffer.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/FiguraSDK.dir/__/source/vertexbuffer.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\lib\\..\\include /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1 /Folib\\CMakeFiles\\FiguraSDK.dir\\__\\source\\glad.c.obj /Fdlib\\CMakeFiles\\FiguraSDK.dir\\FiguraSDK.pdb /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\glad.c",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/glad.c",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/FiguraSDK.dir/__/source/glad.c.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\lib\\..\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Folib\\CMakeFiles\\FiguraSDK.dir\\__\\source\\texture.cpp.obj /Fdlib\\CMakeFiles\\FiguraSDK.dir\\FiguraSDK.pdb /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\texture.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/texture.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/FiguraSDK.dir/__/source/texture.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\lib\\..\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Folib\\CMakeFiles\\FiguraSDK.dir\\__\\source\\GraphicsEngine.cpp.obj /Fdlib\\CMakeFiles\\FiguraSDK.dir\\FiguraSDK.pdb /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\GraphicsEngine.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/GraphicsEngine.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/FiguraSDK.dir/__/source/GraphicsEngine.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\..\\include -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Foexamples\\CMakeFiles\\example_glfw.dir\\example.cpp.obj /Fdexamples\\CMakeFiles\\example_glfw.dir\\ /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\example.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/examples/example.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/example_glfw.dir/example.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\..\\include -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Foexamples\\CMakeFiles\\example_glfw.dir\\__\\source\\camera.cpp.obj /Fdexamples\\CMakeFiles\\example_glfw.dir\\ /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\camera.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/camera.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/example_glfw.dir/__/source/camera.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\..\\include -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Foexamples\\CMakeFiles\\example_glfw.dir\\__\\source\\indexbuffer.cpp.obj /Fdexamples\\CMakeFiles\\example_glfw.dir\\ /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\indexbuffer.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/indexbuffer.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/example_glfw.dir/__/source/indexbuffer.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\..\\include -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Foexamples\\CMakeFiles\\example_glfw.dir\\__\\source\\mesh.cpp.obj /Fdexamples\\CMakeFiles\\example_glfw.dir\\ /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\mesh.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/mesh.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/example_glfw.dir/__/source/mesh.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\..\\include -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Foexamples\\CMakeFiles\\example_glfw.dir\\__\\source\\model.cpp.obj /Fdexamples\\CMakeFiles\\example_glfw.dir\\ /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\model.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/model.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/example_glfw.dir/__/source/model.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\..\\include -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Foexamples\\CMakeFiles\\example_glfw.dir\\__\\source\\shader.cpp.obj /Fdexamples\\CMakeFiles\\example_glfw.dir\\ /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\shader.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/shader.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/example_glfw.dir/__/source/shader.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\..\\include -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Foexamples\\CMakeFiles\\example_glfw.dir\\__\\source\\vertexbuffer.cpp.obj /Fdexamples\\CMakeFiles\\example_glfw.dir\\ /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\vertexbuffer.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/vertexbuffer.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/example_glfw.dir/__/source/vertexbuffer.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\..\\include -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\include /DWIN32 /D_WINDOWS /W3 /MDd /Zi /Ob0 /Od /RTC1 /Foexamples\\CMakeFiles\\example_glfw.dir\\__\\source\\glad.c.obj /Fdexamples\\CMakeFiles\\example_glfw.dir\\ /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\glad.c",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/glad.c",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/example_glfw.dir/__/source/glad.c.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\..\\include -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Foexamples\\CMakeFiles\\example_glfw.dir\\__\\source\\texture.cpp.obj /Fdexamples\\CMakeFiles\\example_glfw.dir\\ /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\texture.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/texture.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/example_glfw.dir/__/source/texture.cpp.obj"
+},
+{
+  "directory": "C:/Users/ehank/Desktop/FiguraSDK/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\18\\COMMUN~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\..\\include -IC:\\Users\\ehank\\Desktop\\FiguraSDK\\examples\\include /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /Foexamples\\CMakeFiles\\example_glfw.dir\\__\\source\\GraphicsEngine.cpp.obj /Fdexamples\\CMakeFiles\\example_glfw.dir\\ /FS -c C:\\Users\\ehank\\Desktop\\FiguraSDK\\source\\GraphicsEngine.cpp",
+  "file": "C:/Users/ehank/Desktop/FiguraSDK/source/GraphicsEngine.cpp",
+  "output": "C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/example_glfw.dir/__/source/GraphicsEngine.cpp.obj"
+}
+]

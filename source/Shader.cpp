@@ -18,23 +18,46 @@ Shader::~Shader()
 	glDeleteProgram(program);
 }
 
-void Shader::LoadFromBuffer(
-	const char* vertex_shader, 
-	const char* fragment_shader, 
-	const char* geometry_shader
+void Shader::LoadFromFile(
+	const char* vertex_shader_path, 
+	const char* fragment_shader_path, 
+	const char* geometry_shader_path
 )
 {
-	glShaderSource(vshader, 1, &vertex_shader, 0);
+	// Read vertex shader file
+	std::ifstream vs_file(vertex_shader_path);
+	std::string vs_source((std::istreambuf_iterator<char>(vs_file)),
+		std::istreambuf_iterator<char>());
+	vs_file.close();
+
+	// Read fragment shader file
+	std::ifstream fs_file(fragment_shader_path);
+	std::string fs_source((std::istreambuf_iterator<char>(fs_file)),
+		std::istreambuf_iterator<char>());
+	fs_file.close();
+
+	// Compile vertex shader
+	const char* vs_code = vs_source.c_str();
+	glShaderSource(vshader, 1, &vs_code, 0);
 	glCompileShader(vshader);
 	glAttachShader(program, vshader);
 
-	glShaderSource(fshader, 1, &fragment_shader, 0);
+	// Compile fragment shader
+	const char* fs_code = fs_source.c_str();
+	glShaderSource(fshader, 1, &fs_code, 0);
 	glCompileShader(fshader);
 	glAttachShader(program, fshader);
 
-	if (geometry_shader != nullptr)
+	// Compile geometry shader if provided
+	if (geometry_shader_path != nullptr)
 	{
-		glShaderSource(gshader, 1, &geometry_shader, 0);
+		std::ifstream gs_file(geometry_shader_path);
+		std::string gs_source((std::istreambuf_iterator<char>(gs_file)),
+			std::istreambuf_iterator<char>());
+		gs_file.close();
+
+		const char* gs_code = gs_source.c_str();
+		glShaderSource(gshader, 1, &gs_code, 0);
 		glCompileShader(gshader);
 		glAttachShader(program, gshader);
 	}
