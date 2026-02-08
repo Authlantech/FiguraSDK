@@ -18,12 +18,10 @@ namespace fgr {
 		friend class Model;
 		Texture();
 		~Texture();
-
+	protected: 
 		bool LoadFromData(TEXTURE_DATA data);
-	private:
 		void bind(const GLenum texture_unit = GL_TEXTURE0) const;
 		static void unbind(const GLenum texture_unit = GL_TEXTURE0);
-	public :
 		static TEXTURE_DATA LoadTextureData(const char* file_path);
 	};
 

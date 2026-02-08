@@ -25,8 +25,8 @@ namespace fgr {
 		friend class Model;
 		Mesh();
 		~Mesh();
-		static MESH_DATA CreateMeshData(std::vector<Vertex> vertices,std::vector<unsigned int> indices,std::vector<std::string>texture_file_paths);
 	protected:
+		static MESH_DATA CreateMeshData(std::vector<Vertex> vertices,std::vector<unsigned int> indices,std::vector<std::string>texture_file_paths);
 		void LoadFromData(MESH_DATA data);
 		void Render() const;
 	};

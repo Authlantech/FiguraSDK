@@ -10,6 +10,13 @@
 - **Async Loading** - Non-blocking model loading for responsive applications
 - **Render Queue** - Flexible rendering pipeline with per-object shader support
 
+## Planned Features
+
+- [ ] **Post-Processing Support** - Add support for post-processing effects (bloom, HDR, etc.)
+- [ ] **PBR (Physically Based Rendering)** - Implement PBR material system for realistic lighting
+- [ ] **Transparent Texture Rendering** - Support for rendering transparent textures with proper blending
+- [ ] **Shadow Mapping** - Add dynamic shadow rendering capabilities
+
 ## Example Program
 
 <img width="364" height="585" alt="Ekran görüntüsü 2025-10-14 111114" src="https://github.com/user-attachments/assets/73e80a91-58c9-49b5-be33-81adeeb1e968" />
@@ -113,27 +120,225 @@ FiguraSDK/
 ## API Reference
 
 ### GraphicsEngine
-- `ConfigureDefaultShader(shader)` - Set the default shader for rendering
-- `ConfigureCamera(camera)` - Set the active camera
-- `GetCameraMovement()` - Process keyboard/mouse input for camera
-- `LoadModel(file)` - Load a model synchronously
-- `LoadModelAsync(file)` - Load a model asynchronously
-- `AppendRenderQueue(item)` - Add item to render queue
-- `Render()` - Render all queued items
-- `UpdateWindow()` - Swap buffers and poll events
 
-### Shader
-- `LoadFromFile(vertex, fragment, geometry)` - Load shaders from GLSL files
+The main engine class that manages the rendering pipeline, window, and resources.
+
+#### Constructor
+- `GraphicsEngine(WindowProperties properties)` - Initialize the graphics engine with window properties
+
+#### Configuration Methods
+- `void ConfigureDefaultShader(std::shared_ptr<Shader> shader)` - Set the default shader used for rendering when no custom shader is specified
+- `void ConfigureCamera(std::shared_ptr<Camera> camera)` - Set the active camera for the scene
+
+#### Input Handling
+- `void GetCameraMovement()` - Process keyboard and mouse input for camera movement (WASD, Space, Ctrl, Right Mouse)
+
+#### Model Loading
+- `std::shared_ptr<Model> LoadModel(std::string file)` - Load a 3D model synchronously from file (blocks until complete)
+- `std::shared_ptr<Model> LoadModelAsync(std::string file)` - Load a 3D model asynchronously (non-blocking, loads in background)
+
+#### Rendering
+- `void AppendRenderQueue(RenderItem item)` - Add a render item to the queue for the current frame
+- `void ClearRenderQueue()` - Clear all items from the render queue
+- `void Render()` - Render all queued items to the screen
+
+#### Window Management
+- `bool IsWindowOpen()` - Check if the window is still open
+- `void UpdateWindow()` - Swap buffers and poll events (call once per frame)
+
+---
 
 ### Camera
-- `configure_perspective(fov, aspect, near, far)` - Set perspective projection
-- `configure_ortho(left, right, bottom, top, near, far)` - Set orthographic projection
-- `set_position(pos)` - Set camera position
-- `face(target)` - Point camera at target
+
+Manages view and projection matrices for rendering.
+
+#### Projection Configuration
+- `void configure_perspective(float fov, float aspect, float zNear, float zFar)` - Configure perspective projection
+  - `fov` - Field of view in degrees
+  - `aspect` - Aspect ratio (width/height)
+  - `zNear` - Near clipping plane
+  - `zFar` - Far clipping plane
+
+- `void configure_ortho(float left, float right, float bottom, float top, float near, float far)` - Configure orthographic projection
+  - `left`, `right`, `bottom`, `top` - Bounds of the viewing volume
+  - `near`, `far` - Near and far clipping planes
+
+#### Transform Methods
+- `void set_position(glm::vec3 pos)` - Set camera position in world space
+- `void face(glm::vec3 target)` - Point the camera at a target position
+
+#### Query Methods
+- `glm::vec3 get_position()` - Get current camera position
+- `glm::vec3 get_orientation()` - Get camera orientation vector
+
+---
 
 ### Model
-- `set_position(pos)` - Set model position
-- `rotate(axis, angle)` - Rotate model around axis
+
+Represents a 3D model composed of one or more meshes.
+
+#### Transform Methods
+- `void set_position(glm::vec3 position)` - Set model position in world space
+- `void scale(float v)` - Scale the model uniformly by factor `v`
+- `void rotate(glm::vec3 v, float angle)` - Rotate model around axis `v` by `angle` radians
+
+#### Query Methods
+- `glm::vec3 get_position()` - Get current model position
+- `glm::mat4 get_modelMatrix()` - Get the model transformation matrix
+- `glm::mat4 get_normalMatrix()` - Get the normal transformation matrix
+
+---
+
+### Shader
+
+Manages GLSL shader programs.
+
+#### Loading
+- `void LoadFromFile(const char* vertex_shader, const char* fragment_shader, const char* geometry_shader = nullptr)` - Load and compile shaders from files
+  - `vertex_shader` - Path to vertex shader file
+  - `fragment_shader` - Path to fragment shader file
+  - `geometry_shader` - Optional path to geometry shader file
+
+> [!NOTE]
+> Shaders must follow the uniform and attribute naming conventions documented in the [Shader Requirements](#shader-requirements) section.
+
+---
+
+### Data Structures
+
+#### WindowProperties
+```cpp
+struct WindowProperties {
+    int width;                          // Window width in pixels
+    int height;                         // Window height in pixels
+    const char* tittle;                 // Window title
+    int frames_per_second;              // Target FPS (default: 30)
+    GLint OpenGLContextVersionMajor;    // OpenGL major version (default: 4)
+    GLint OpenGLContextVersionMinor;    // OpenGL minor version (default: 6)
+};
+```
+
+#### RenderItem
+```cpp
+struct RenderItem {
+    std::shared_ptr<Shader> shader;     // Custom shader (nullptr uses default)
+    std::shared_ptr<Model> model;       // Model to render
+};
+```
+
+#### Vertex
+```cpp
+struct Vertex {
+    float position[3];           // Vertex position (x, y, z)
+    float color[4];              // Vertex color (r, g, b, a)
+    float texture_coordinates[3]; // Texture coordinates (u, v, w)
+    float normal[3];             // Normal vector (x, y, z)
+    float tangent[3];            // Tangent vector (x, y, z)
+    float bittangent[3];         // Bitangent vector (x, y, z)
+};
+```
+
+### Shader Requirements
+
+When creating custom shaders for FiguraSDK, your shaders must adhere to specific uniform names, texture bindings, and vertex attribute locations that the engine expects. This ensures proper communication between the engine and your shader programs.
+
+#### Required Uniforms
+
+| Uniform Name | Type | Description |
+|--------------|------|-------------|
+| `modelMatrix` | `mat4` | Model transformation matrix |
+| `viewMatrix` | `mat4` | View (camera) matrix |
+| `projectionMatrix` | `mat4` | Projection matrix |
+| `normalMatrix` | `mat4` | Normal transformation matrix (for lighting calculations) |
+
+#### Texture Bindings
+
+| Binding | Uniform Name | Description |
+|---------|--------------|-------------|
+| `0` | `albedo_map` | Albedo/diffuse color texture |
+| `1` | `normal_map` | Normal map for bump mapping |
+| `2` | `metallic_map` | Metallic texture (PBR) |
+| `2` | `roughness_map` | Roughness texture (PBR) |
+| `2` | `ao_map` | Ambient occlusion map |
+
+> [!NOTE]
+> Multiple textures can share the same binding point if they are not used simultaneously in the shader.
+
+#### Vertex Attributes
+
+| Location | Attribute Name | Type | Description |
+|----------|----------------|------|-------------|
+| `0` | `local_space_ver_pos` | `vec3` | Vertex position in local space |
+| `2` | `ver_texture_coords` | `vec2` | Texture coordinates |
+| `3` | `local_space_ver_normal` | `vec3` | Vertex normal in local space |
+| `4` | `local_space_ver_tangent` | `vec3` | Vertex tangent in local space |
+| `5` | `local_space_ver_bittangent` | `vec3` | Vertex bitangent in local space |
+
+#### Default Vertex Shader
+
+See [model.vert](examples/shaders/model.vert) for the complete default vertex shader:
+
+```glsl
+#version 460 core
+
+layout (location = 0) in vec3 local_space_ver_pos;
+layout (location = 2) in vec2 ver_texture_coords;
+layout (location = 3) in vec3 local_space_ver_normal;
+layout (location = 4) in vec3 local_space_ver_tangent;
+layout (location = 5) in vec3 local_space_ver_bittangent;
+
+out VERTEX_DATA
+{
+	vec3 world_space_frag_pos;
+	vec3 world_space_ver_normal;
+	vec3 world_space_ver_tangent;
+	vec3 world_space_ver_bittangent;
+	vec2 ver_texture_coordinates;
+} ver_out;
+
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 normalMatrix;
+
+void main() {
+	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(local_space_ver_pos,1.0);
+	ver_out.ver_texture_coordinates = ver_texture_coords;
+	ver_out.world_space_ver_normal = mat3(normalMatrix) * local_space_ver_normal;
+	ver_out.world_space_ver_tangent = mat3(normalMatrix) * local_space_ver_tangent;
+	ver_out.world_space_ver_bittangent = mat3(normalMatrix) * local_space_ver_bittangent;
+	ver_out.world_space_frag_pos = vec3(modelMatrix * vec4(local_space_ver_pos,1.0));
+}
+```
+
+#### Default Fragment Shader
+
+See [model.frag](examples/shaders/model.frag) for the complete default fragment shader:
+
+```glsl
+#version 460 core
+
+layout (binding = 0) uniform sampler2D albedo_map;
+layout (binding = 1) uniform sampler2D normal_map;
+layout (binding = 2) uniform sampler2D metallic_map; 
+layout (binding = 2) uniform sampler2D roughness_map; 
+layout (binding = 2) uniform sampler2D ao_map; 
+
+in VERTEX_DATA
+{
+	vec3 world_space_frag_pos;
+	vec3 world_space_ver_normal;
+	vec3 world_space_ver_tangent;
+	vec3 world_space_ver_bittangent;
+	vec2 ver_texture_coordinates;
+} frag_in;
+
+out vec4 frag_color;
+
+void main() {
+	frag_color = vec4(texture(albedo_map, frag_in.ver_texture_coordinates).rgb, 1.0f);
+}
+```
 
 ## Licenses
 
