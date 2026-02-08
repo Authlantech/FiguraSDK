@@ -9,7 +9,7 @@
 namespace fgr {
 
 	class Shader {
-	private:
+	protected:
 		unsigned int program = 0;
 		unsigned int vshader = 0; 
 		unsigned int fshader = 0; 
@@ -19,7 +19,7 @@ namespace fgr {
 		Shader();
         ~Shader();
 		void LoadFromFile(const char* vertex_shader, const char* fragment_shader,const char* geometry_shader = nullptr);
-	private :
+	protected :
 		void use();
 		void uniformmat4f(const char* name, glm::mat4 val);
 		void uniformfloat(const char* name, float val);

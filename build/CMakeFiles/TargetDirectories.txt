@@ -1,8 +1,0 @@
-C:/Users/ehank/Desktop/FiguraSDK/build/CMakeFiles/edit_cache.dir
-C:/Users/ehank/Desktop/FiguraSDK/build/CMakeFiles/rebuild_cache.dir
-C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/FiguraSDK.dir
-C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/edit_cache.dir
-C:/Users/ehank/Desktop/FiguraSDK/build/lib/CMakeFiles/rebuild_cache.dir
-C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/example_glfw.dir
-C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/edit_cache.dir
-C:/Users/ehank/Desktop/FiguraSDK/build/examples/CMakeFiles/rebuild_cache.dir

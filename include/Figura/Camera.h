@@ -26,7 +26,7 @@ namespace fgr {
 	};
 
 	class Camera {
-	private:
+	protected:
 		glm::mat4 viewMatrix = glm::mat4(1.f);
 		glm::mat4 projectionMatrix = glm::mat4(1.f);
 
@@ -51,12 +51,9 @@ namespace fgr {
 
 		glm::vec3 get_oreintation();
 		glm::vec3 get_position();
-	private :
+	protected :
 		glm::mat4 get_viewMatrix(); 
 		glm::mat4 get_projectionMatrix();
-
-		PerspectiveAttribs give_perpective_attribs(); 
-		OrthographicAttribs give_orthographic_attribs();
 	};
 
 }
