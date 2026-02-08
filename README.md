@@ -343,3 +343,8 @@ void main() {
 ## Licenses
 
 See **Additional Licenses** folder for third-party library licenses.
+
+## Acknowledgments
+
+This project was developed with the help of [LearnOpenGL](https://learnopengl.com/), an excellent resource for learning modern OpenGL programming. If you are curious about computer graphics and specifically OpenGL it is highly advised that you check it out.
+
