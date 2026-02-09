@@ -5,25 +5,22 @@
 #include <assimp/postprocess.h>
 
 #include <unordered_map>
+#include <chrono>
 
 using namespace fgr;
 
-void Model::updateModelMatrix()
+void Model::update_model_normal_matrices()
 {
 	modelMatrix = translation * rotation * scaling;
-}
-
-void Model::updateNormalMatrix()
-{
 	normalMatrix = glm::transpose(glm::inverse(modelMatrix));
 }
 
-glm::mat4 Model::get_modelMatrix()
+glm::mat4 Model::get_model_matrix()
 {
 	return modelMatrix;
 }
 
-glm::mat4 Model::get_normalMatrix()
+glm::mat4 Model::get_normal_matrix()
 {
 	return normalMatrix;
 }
@@ -32,22 +29,19 @@ void Model::set_position(glm::vec3 position)
 {
 	translation = glm::translate(glm::mat4(1.f), position);
 	this->position = position;
-	updateModelMatrix(); 
-	updateNormalMatrix();
+	update_model_normal_matrices();
 }
 
 void Model::scale(float v)
 {
 	scaling = glm::scale(glm::mat4(1.f), glm::vec3(v,v,v));
-	updateModelMatrix();
-	updateNormalMatrix();
+	update_model_normal_matrices();
 }
 
 void Model::rotate(glm::vec3 v, float angle)
 {
 	rotation =  glm::rotate(glm::mat4(1.f), glm::radians(angle), glm::normalize(v)) * rotation;
-	updateModelMatrix();
-	updateNormalMatrix();
+	update_model_normal_matrices();
 }
 
 glm::vec3 Model::get_position()
@@ -56,7 +50,20 @@ glm::vec3 Model::get_position()
 }
 
 void Model::Render()
-{		for (int a = 0; a < meshes.size(); a++)
+{
+	// Check if model has pending data to load from async operation
+	if (loaded_.valid()) {
+		// Check if the future is ready without blocking
+		auto status = loaded_.wait_for(std::chrono::seconds(0));
+		if (status == std::future_status::ready) {
+			// Load the model data on the main thread (OpenGL context)
+			model_data data = loaded_.get();
+			Load(data);
+			// Future is now invalid (reset) after get(), preventing multiple loads
+		}
+	}
+
+	for (int a = 0; a < meshes.size(); a++)
 		{
 			fgr::Texture::unbind(GL_TEXTURE0);
 			fgr::Texture::unbind(GL_TEXTURE1);
@@ -67,14 +74,13 @@ void Model::Render()
 		}
 }
 
-void Model::LoadFromData(model_data data) {
+void Model::Load(model_data data) {
 	meshes.clear();
 	for (auto& d : data.model_meshes) {
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->LoadFromData(d);
 		meshes.push_back(mesh);
 	}
-
 }
 
 
@@ -264,6 +270,17 @@ model_data fgr::Model::LoadModelData(std::string path) {
 	}
 
 	return loaded_data;
+}
+
+void Model::Load(std::string file)
+{
+	model_data dat = Model::LoadModelData(file);
+	Load(dat);
+}
+
+void Model::LoadAsync(std::string file)
+{
+	loaded_ = std::async(std::launch::async, &Model::LoadModelData, file);
 }
 
 Model2D::Model2D(const char* texture_path) {

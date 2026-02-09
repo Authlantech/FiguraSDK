@@ -3,8 +3,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Shader.h"
-
 namespace fgr {
 
 	struct PerspectiveAttribs
@@ -33,27 +31,32 @@ namespace fgr {
 		glm::vec3 position = glm::vec3(0.f, 0.f, 0.f);
 		glm::vec3 oreintation = glm::vec3(0.f, 0.f, -1.f);
 
-		// Attribs : 
-		PerspectiveAttribs p_attribs = { 0 };
-		OrthographicAttribs o_attribs = { 0 };
-
+		glm::mat4 get_viewMatrix();
+		glm::mat4 get_projectionMatrix();
 	public:
 		friend class GraphicsEngine;
 
-		Camera() = default;
-		~Camera() = default;
-
-		void configure_perspective(float fov, float aspect, float zNear, float zFar);
-		void configure_ortho(float left,float right,float bottom,float top,float near,float far);
+		Camera();
+		virtual ~Camera() = 0;
 
 		void set_position(glm::vec3 pos);
 		void face(glm::vec3 target);
 
 		glm::vec3 get_oreintation();
 		glm::vec3 get_position();
-	protected :
-		glm::mat4 get_viewMatrix(); 
-		glm::mat4 get_projectionMatrix();
+	};
+
+
+	class OrthoCamera : public Camera
+	{
+	public : 
+		OrthoCamera(OrthographicAttribs attribs);
+	};
+
+	class PerspectiveCamera : public Camera
+	{
+	public : 
+		PerspectiveCamera(PerspectiveAttribs attribs);
 	};
 
 }

@@ -49,8 +49,6 @@ namespace fgr {
         void ClearRenderQueue();
         void Render();
 
-        std::shared_ptr<Model> LoadModelAsync(std::string file);
-        std::shared_ptr<Model> LoadModel(std::string file);
         bool IsWindowOpen();
         void UpdateWindow(glm::vec4 surface_color = glm::vec4(0.f,0.f,0.f,1.f)); 
     };
