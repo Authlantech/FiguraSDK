@@ -10,7 +10,7 @@
 namespace fgr {
 
 	struct model_data {
-		std::vector<MESH_DATA> model_meshes;
+		std::vector<mesh_data> model_meshes;
 	};
 
 	class Model {
@@ -30,9 +30,9 @@ namespace fgr {
 		void updateNormalMatrix();
 
 		std::future<model_data> is_loaded;
-		void LoadFromData(model_data data);
 		void Render();
-		static model_data LoadModelData(std::string file);
+		glm::mat4 get_modelMatrix();
+		glm::mat4 get_normalMatrix();
 	public:
 		friend class GraphicsEngine;
 		Model() = default;
@@ -42,8 +42,15 @@ namespace fgr {
 		void rotate(glm::vec3 v, float angle);
 
 		glm::vec3 get_position();
-		glm::mat4 get_modelMatrix();
-		glm::mat4 get_normalMatrix();
+
+		void LoadFromData(model_data data);
+		static model_data LoadModelData(std::string file);
+	};
+
+	class Model2D : public Model
+	{
+	public : 
+		Model2D(const char* texture_path);
 	};
 
 }

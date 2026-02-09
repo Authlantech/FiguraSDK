@@ -18,5 +18,5 @@ in VERTEX_DATA
 out vec4 frag_color;
 
 void main() {
-	frag_color = vec4(texture(albedo_map, frag_in.ver_texture_coordinates).rgb, 1.0f);
+	frag_color = texture(albedo_map, frag_in.ver_texture_coordinates);
 }

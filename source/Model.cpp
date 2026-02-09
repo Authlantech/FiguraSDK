@@ -173,7 +173,7 @@ model_data fgr::Model::LoadModelData(std::string path) {
 
 	for (unsigned int a = 0; a < scene->mNumMeshes; a++)
 	{
-		MESH_DATA mesh_data;
+		mesh_data mesh_data;
 
 		aiMesh* currentMesh = scene->mMeshes[a];
 
@@ -234,8 +234,28 @@ model_data fgr::Model::LoadModelData(std::string path) {
 				for (auto& c : texture_file_name)
 					if (c == '\\') c = '/';
 
+				if (texture_file_name.find('/') != std::string::npos) 
+					texture_file_name = texture_file_name.substr(texture_file_name.find_last_of('/') + 1);
+
 				if (loaded_textures.find(texture_file_name) != loaded_textures.end()) {
-					mesh_data.textures.push_back(loaded_textures[texture_file_name]);
+					switch (tt) {
+						case aiTextureType_BASE_COLOR:
+						case aiTextureType_DIFFUSE:
+							mesh_data.albedo = loaded_textures[texture_file_name];
+							break;
+						case aiTextureType_NORMALS:
+							mesh_data.normal = loaded_textures[texture_file_name];
+							break;
+						case aiTextureType_METALNESS:
+							mesh_data.metallic = loaded_textures[texture_file_name];
+							break;
+						case aiTextureType_DIFFUSE_ROUGHNESS:
+							mesh_data.roughness = loaded_textures[texture_file_name];
+							break;
+						case aiTextureType_AMBIENT_OCCLUSION:
+							mesh_data.ao = loaded_textures[texture_file_name];
+							break;
+					}
 				}
 			}
 		}
@@ -244,5 +264,33 @@ model_data fgr::Model::LoadModelData(std::string path) {
 	}
 
 	return loaded_data;
+}
+
+Model2D::Model2D(const char* texture_path) {
+	// Create a plane mesh with 4 vertices forming a quad
+	std::vector<Vertex> vertices = {
+		// Bottom-left
+		{{-0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+		// Bottom-right
+		{{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+		// Top-right
+		{{0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+		// Top-left
+		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}}
+	};
+
+	// Two triangles forming the quad
+	std::vector<unsigned int> indices = {
+		0, 1, 2,  // First triangle
+		0, 2, 3   // Second triangle
+	};
+
+	// Load mesh data with the texture as albedo map
+	mesh_data data = Mesh::LoadMeshData(vertices, indices, texture_path);
+
+	// Create and add the mesh
+	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
+	mesh->LoadFromData(data);
+	meshes.push_back(mesh);
 }
 

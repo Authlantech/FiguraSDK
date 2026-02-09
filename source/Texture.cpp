@@ -33,7 +33,7 @@ void Texture::unbind(const GLenum texture_unit)
 TEXTURE_DATA Texture::LoadTextureData(const char* file_path) {
 	TEXTURE_DATA data;
 	stbi_set_flip_vertically_on_load(true);
-	data.pixels = stbi_load(file_path,&data.width,&data.height,&data.channels,3);
+	data.pixels = stbi_load(file_path,&data.width,&data.height,&data.channels,4);
 	return data;
 }
 
@@ -43,7 +43,7 @@ bool Texture::LoadFromData(TEXTURE_DATA data) {
 	}
 	else {
 		bind();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data.pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.pixels);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		return true;
 	}

@@ -9,3 +9,6 @@
 /cmake-build-debug-visual-studio
 /.idea
 /build
+/.vscode
+CMakeSettings.json
+examples/vc140.pdb
