@@ -44,6 +44,8 @@ GraphicsEngine::GraphicsEngine(WindowProperties properties) : properties(propert
 
 	// Set up default OpenGL state
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 }
@@ -225,7 +227,7 @@ bool GraphicsEngine::IsWindowOpen()
 	return window && !glfwWindowShouldClose(window);
 }
 
-void GraphicsEngine::UpdateWindow()
+void GraphicsEngine::UpdateWindow(glm::vec4 surface_color)
 {
 	// Swap front and back buffers
 	glfwSwapBuffers(window);
@@ -234,6 +236,7 @@ void GraphicsEngine::UpdateWindow()
 	glfwPollEvents();
 
 	// Clear buffers for next frame
+	glClearColor(surface_color.r, surface_color.g, surface_color.b, surface_color.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//Wait for target FPS

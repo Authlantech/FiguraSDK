@@ -49,13 +49,3 @@ glm::mat4 Camera::get_projectionMatrix()
 	return projectionMatrix;
 }
 
-PerspectiveAttribs	Camera::give_perpective_attribs()
-{
-	return p_attribs;
-}
-
-OrthographicAttribs Camera::give_orthographic_attribs()
-{
-	return o_attribs;
-}
-

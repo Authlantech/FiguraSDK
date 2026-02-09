@@ -19,10 +19,9 @@ add_executable(
 		example_glfw
 		example.cpp
 		../source/camera.cpp
-		../source/indexbuffer.cpp
 		../source/mesh.cpp
-		../source/model.cpp ../source/shader.cpp
-		../source/vertexbuffer.cpp
+		../source/model.cpp
+		../source/shader.cpp
 		../source/glad.c
 		../source/texture.cpp
 		../source/GraphicsEngine.cpp

@@ -3,11 +3,9 @@ cmake_minimum_required (VERSION 3.10)
 add_library (
 		FiguraSDK STATIC
 		../source/camera.cpp
-		../source/indexbuffer.cpp
 		../source/mesh.cpp
 		../source/model.cpp
 		../source/shader.cpp
-		../source/vertexbuffer.cpp
 		../source/glad.c
 		../source/texture.cpp
 		../source/GraphicsEngine.cpp

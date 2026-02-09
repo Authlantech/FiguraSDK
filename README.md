@@ -14,8 +14,9 @@
 
 - [ ] **Post-Processing Support** - Add support for post-processing effects (bloom, HDR, etc.)
 - [ ] **PBR (Physically Based Rendering)** - Implement PBR material system for realistic lighting
-- [ ] **Transparent Texture Rendering** - Support for rendering transparent textures with proper blending
+- [x] **Transparent Texture Rendering** - Support for rendering transparent textures with proper blending
 - [ ] **Shadow Mapping** - Add dynamic shadow rendering capabilities
+- [ ] **Skybox Support** - Add cubemap-based skybox rendering for environment backgrounds
 
 ## Example Program
 
@@ -41,7 +42,7 @@ int main() {
 
     // Load shader
     auto shader = std::make_shared<fgr::Shader>();
-    shader->LoadFromFile("shaders/model.vert", "shaders/model.frag");
+    shader->LoadFromFile("shaders/default/default.vert", "shaders/default/default.frag");
     engine.ConfigureDefaultShader(shader);
 
     // Setup camera
@@ -144,7 +145,8 @@ The main engine class that manages the rendering pipeline, window, and resources
 
 #### Window Management
 - `bool IsWindowOpen()` - Check if the window is still open
-- `void UpdateWindow()` - Swap buffers and poll events (call once per frame)
+- `void UpdateWindow(glm::vec4 surface_color = glm::vec4(0.f, 0.f, 0.f, 1.f))` - Swap buffers and poll events (call once per frame)
+  - `surface_color` - Optional RGBA clear color for the background (default: black)
 
 ---
 
@@ -186,6 +188,18 @@ Represents a 3D model composed of one or more meshes.
 - `glm::vec3 get_position()` - Get current model position
 - `glm::mat4 get_modelMatrix()` - Get the model transformation matrix
 - `glm::mat4 get_normalMatrix()` - Get the normal transformation matrix
+
+---
+
+### Model2D
+
+A specialized model class for rendering 2D textured planes (sprites). Inherits from `Model`.
+
+#### Constructor
+- `Model2D(const char* texture_path)` - Create a 2D plane with the specified texture
+  - `texture_path` - Path to the texture image file
+
+All transform methods from `Model` are available (`set_position`, `scale`, `rotate`, etc.).
 
 ---
 
@@ -276,7 +290,7 @@ When creating custom shaders for FiguraSDK, your shaders must adhere to specific
 
 #### Default Vertex Shader
 
-See [model.vert](examples/shaders/model.vert) for the complete default vertex shader:
+See [default.vert](shaders/default/default.vert) for the complete default vertex shader:
 
 ```glsl
 #version 460 core
@@ -313,7 +327,7 @@ void main() {
 
 #### Default Fragment Shader
 
-See [model.frag](examples/shaders/model.frag) for the complete default fragment shader:
+See [default.frag](shaders/default/default.frag) for the complete default fragment shader:
 
 ```glsl
 #version 460 core

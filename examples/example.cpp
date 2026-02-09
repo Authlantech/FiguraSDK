@@ -19,7 +19,7 @@ int main()
 
 	// Create a default shader
 	auto shader = std::make_shared<fgr::Shader>();
-	shader->LoadFromFile("../shaders/model.vert", "../shaders/model.frag");
+	shader->LoadFromFile("../../shaders/default/default.vert", "../../shaders/default/default.frag");
 	engine.ConfigureDefaultShader(shader);
 
 	// Create a default perspective camera
