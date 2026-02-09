@@ -29,46 +29,63 @@
 
 ```cpp
 #include <Figura/GraphicsEngine.h>
+#include <iostream>
+#include <thread>
+#include <chrono>
 
-int main() {
-    // Create window
-    fgr::WindowProperties props;
-    props.width = 800;
-    props.height = 600;
-    props.tittle = "FiguraSDK Example";
-    props.frames_per_second = 60;
+int main()
+{
+	// Window configuration
+	fgr::WindowProperties props;
+	props.width = 800;
+	props.height = 600;
+	props.tittle = "FiguraSDK Example";
+	props.OpenGLContextVersionMajor = 4;
+	props.OpenGLContextVersionMinor = 6;
 
-    fgr::GraphicsEngine engine(props);
+	// Initialize the graphics engine
+	fgr::GraphicsEngine engine(props);
 
-    // Load shader
-    auto shader = std::make_shared<fgr::Shader>();
-    shader->Load("shaders/default/default.vert", "shaders/default/default.frag");
-    engine.ConfigureDefaultShader(shader);
+	// Create a default shader
+	auto shader = std::make_shared<fgr::Shader>();
+	shader->Load("../../shaders/default/default.vert", "../../shaders/default/default.frag");
+	engine.ConfigureDefaultShader(shader);
 
-    // Setup camera
-    fgr::PerspectiveAttribs attribs = { 60.f, 800.f / 600.f, 0.1f, 100.f };
-    auto camera = std::make_shared<fgr::PerspectiveCamera>(attribs);
-    camera->set_position(glm::vec3(0.f, 2.f, 10.f));
-    engine.ConfigureCamera(camera);
+	// Create a default perspective camera
+	fgr::PerspectiveAttribs attribs = { 60.f, 800.f / 600.f, 0.1f, 100.f };
+	auto camera = std::make_shared<fgr::PerspectiveCamera>(attribs);
+	camera->set_position({ 0,0,5 });
+	engine.ConfigureCamera(camera);
 
-    // Load model
-    auto model = std::make_shared<fgr::Model>();
-    model->Load("assets/model.obj");
+	// Load a model
+	auto model = std::make_shared<fgr::Model>();
+	model->LoadAsync("../assets/Meshy_AI_Fortress_Cannon_Cart_0206220959_texture.obj");
+	model->set_position({ 0.f, 0.f, -5.f });
 
-    // Render loop
-    while (engine.IsWindowOpen()) {
-        engine.GetCameraMovement();
+	// Main render loop
+	while (engine.IsWindowOpen())
+	{
+		// Rotate the model slowly
+		model->rotate(glm::vec3(0.f, 1.f, 0.f), 1.f);
 
-        fgr::RenderItem item;
-        item.model = model;
-        engine.AppendRenderQueue(item);
+		// Get camera movement
+		engine.GetCameraMovement();
 
-        engine.Render();
-        engine.UpdateWindow();
-    }
+		// Add model to render queue
+		fgr::RenderItem item;
+		item.model = model;
+		engine.AppendRenderQueue(item);
 
-    return 0;
+		// Render all queued items
+		engine.Render();
+
+		// Update window (swap buffers, poll events)
+		engine.UpdateWindow();
+	}
+
+	return 0;
 }
+
 ```
 
 
@@ -103,7 +120,7 @@ FiguraSDK/
 ├── include/Figura/    # Header files
 ├── source/            # Implementation files
 ├── examples/          # Example applications
-│   └── shaders/       # GLSL shader files
+├── shaders/           # GLSL shader files
 ├── lib/               # Library build output
 └── Additional Licenses/
 ```
