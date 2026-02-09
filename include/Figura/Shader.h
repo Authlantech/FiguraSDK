@@ -18,7 +18,7 @@ namespace fgr {
 		friend class GraphicsEngine;
 		Shader();
         ~Shader();
-		void LoadFromFile(const char* vertex_shader, const char* fragment_shader,const char* geometry_shader = nullptr);
+		void Load(const char* vertex_shader_file, const char* fragment_shader_file, const char* geometry_shader_file = nullptr);
 	protected :
 		void use();
 		void uniformmat4f(const char* name, glm::mat4 val);

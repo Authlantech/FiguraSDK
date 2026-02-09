@@ -29,58 +29,65 @@
 
 ```cpp
 #include <Figura/GraphicsEngine.h>
+#include <iostream>
+#include <thread>
+#include <chrono>
 
-int main() {
-    // Create window
-    fgr::WindowProperties props;
-    props.width = 800;
-    props.height = 600;
-    props.tittle = "FiguraSDK Example";
-    props.frames_per_second = 60;
+int main()
+{
+	// Window configuration
+	fgr::WindowProperties props;
+	props.width = 800;
+	props.height = 600;
+	props.tittle = "FiguraSDK Example";
+	props.OpenGLContextVersionMajor = 4;
+	props.OpenGLContextVersionMinor = 6;
 
-    fgr::GraphicsEngine engine(props);
+	// Initialize the graphics engine
+	fgr::GraphicsEngine engine(props);
 
-    // Load shader
-    auto shader = std::make_shared<fgr::Shader>();
-    shader->LoadFromFile("shaders/default/default.vert", "shaders/default/default.frag");
-    engine.ConfigureDefaultShader(shader);
+	// Create a default shader
+	auto shader = std::make_shared<fgr::Shader>();
+	shader->Load("../../shaders/default/default.vert", "../../shaders/default/default.frag");
+	engine.ConfigureDefaultShader(shader);
 
-    // Setup camera
-    auto camera = std::make_shared<fgr::Camera>();
-    camera->configure_perspective(60.f, 800.f / 600.f, 0.1f, 100.f);
-    camera->set_position(glm::vec3(0.f, 2.f, 10.f));
-    engine.ConfigureCamera(camera);
+	// Create a default perspective camera
+	fgr::PerspectiveAttribs attribs = { 60.f, 800.f / 600.f, 0.1f, 100.f };
+	auto camera = std::make_shared<fgr::PerspectiveCamera>(attribs);
+	camera->set_position({ 0,0,5 });
+	engine.ConfigureCamera(camera);
 
-    // Load model
-    auto model = engine.LoadModel("assets/model.obj");
+	// Load a model
+	auto model = std::make_shared<fgr::Model>();
+	model->LoadAsync("../assets/Meshy_AI_Fortress_Cannon_Cart_0206220959_texture.obj");
+	model->set_position({ 0.f, 0.f, -5.f });
 
-    // Render loop
-    while (engine.IsWindowOpen()) {
-        engine.GetCameraMovement();
+	// Main render loop
+	while (engine.IsWindowOpen())
+	{
+		// Rotate the model slowly
+		model->rotate(glm::vec3(0.f, 1.f, 0.f), 1.f);
 
-        fgr::RenderItem item;
-        item.model = model;
-        engine.AppendRenderQueue(item);
+		// Get camera movement
+		engine.GetCameraMovement();
 
-        engine.Render();
-        engine.UpdateWindow();
-    }
+		// Add model to render queue
+		fgr::RenderItem item;
+		item.model = model;
+		engine.AppendRenderQueue(item);
 
-    return 0;
+		// Render all queued items
+		engine.Render();
+
+		// Update window (swap buffers, poll events)
+		engine.UpdateWindow();
+	}
+
+	return 0;
 }
+
 ```
 
-## Camera Controls
-
-| Key | Action |
-|-----|--------|
-| `W` | Move forward |
-| `S` | Move backward |
-| `A` | Strafe left |
-| `D` | Strafe right |
-| `Space` | Move up |
-| `Left Ctrl` | Move down |
-| `Right Mouse + Move` | Look around |
 
 ## Build
 
@@ -113,7 +120,7 @@ FiguraSDK/
 ├── include/Figura/    # Header files
 ├── source/            # Implementation files
 ├── examples/          # Example applications
-│   └── shaders/       # GLSL shader files
+├── shaders/           # GLSL shader files
 ├── lib/               # Library build output
 └── Additional Licenses/
 ```
@@ -134,10 +141,6 @@ The main engine class that manages the rendering pipeline, window, and resources
 #### Input Handling
 - `void GetCameraMovement()` - Process keyboard and mouse input for camera movement (WASD, Space, Ctrl, Right Mouse)
 
-#### Model Loading
-- `std::shared_ptr<Model> LoadModel(std::string file)` - Load a 3D model synchronously from file (blocks until complete)
-- `std::shared_ptr<Model> LoadModelAsync(std::string file)` - Load a 3D model asynchronously (non-blocking, loads in background)
-
 #### Rendering
 - `void AppendRenderQueue(RenderItem item)` - Add a render item to the queue for the current frame
 - `void ClearRenderQueue()` - Clear all items from the render queue
@@ -150,20 +153,9 @@ The main engine class that manages the rendering pipeline, window, and resources
 
 ---
 
-### Camera
+### Camera (Abstract Base)
 
-Manages view and projection matrices for rendering.
-
-#### Projection Configuration
-- `void configure_perspective(float fov, float aspect, float zNear, float zFar)` - Configure perspective projection
-  - `fov` - Field of view in degrees
-  - `aspect` - Aspect ratio (width/height)
-  - `zNear` - Near clipping plane
-  - `zFar` - Far clipping plane
-
-- `void configure_ortho(float left, float right, float bottom, float top, float near, float far)` - Configure orthographic projection
-  - `left`, `right`, `bottom`, `top` - Bounds of the viewing volume
-  - `near`, `far` - Near and far clipping planes
+Abstract base class for cameras. Use `PerspectiveCamera` or `OrthoCamera` to create instances.
 
 #### Transform Methods
 - `void set_position(glm::vec3 pos)` - Set camera position in world space
@@ -171,13 +163,53 @@ Manages view and projection matrices for rendering.
 
 #### Query Methods
 - `glm::vec3 get_position()` - Get current camera position
-- `glm::vec3 get_orientation()` - Get camera orientation vector
+- `glm::vec3 get_oreintation()` - Get camera orientation vector
+
+---
+
+### PerspectiveCamera
+
+Perspective projection camera. Inherits from `Camera`.
+
+#### Constructor
+- `PerspectiveCamera(PerspectiveAttribs attribs)` - Create with perspective projection settings
+
+```cpp
+struct PerspectiveAttribs {
+    float fov;     // Field of view in degrees
+    float aspect;  // Aspect ratio (width/height)
+    float near;    // Near clipping plane
+    float far;     // Far clipping plane
+};
+```
+
+---
+
+### OrthoCamera
+
+Orthographic projection camera. Inherits from `Camera`.
+
+#### Constructor
+- `OrthoCamera(OrthographicAttribs attribs)` - Create with orthographic projection settings
+
+```cpp
+struct OrthographicAttribs {
+    float left, right;   // Horizontal bounds
+    float bottom, top;   // Vertical bounds
+    float near, far;     // Near and far clipping planes
+};
+```
 
 ---
 
 ### Model
 
 Represents a 3D model composed of one or more meshes.
+
+#### Loading Methods
+- `void Load(std::string file)` - Load a 3D model synchronously from file (blocks until complete)
+- `void LoadAsync(std::string file)` - Load a 3D model asynchronously (non-blocking, loads in background)
+- `static model_data LoadModelData(std::string file)` - Load model data without creating GPU resources (for custom loading)
 
 #### Transform Methods
 - `void set_position(glm::vec3 position)` - Set model position in world space
@@ -186,8 +218,6 @@ Represents a 3D model composed of one or more meshes.
 
 #### Query Methods
 - `glm::vec3 get_position()` - Get current model position
-- `glm::mat4 get_modelMatrix()` - Get the model transformation matrix
-- `glm::mat4 get_normalMatrix()` - Get the normal transformation matrix
 
 ---
 
@@ -208,10 +238,10 @@ All transform methods from `Model` are available (`set_position`, `scale`, `rota
 Manages GLSL shader programs.
 
 #### Loading
-- `void LoadFromFile(const char* vertex_shader, const char* fragment_shader, const char* geometry_shader = nullptr)` - Load and compile shaders from files
-  - `vertex_shader` - Path to vertex shader file
-  - `fragment_shader` - Path to fragment shader file
-  - `geometry_shader` - Optional path to geometry shader file
+- `void Load(const char* vertex_shader_file, const char* fragment_shader_file, const char* geometry_shader_file = nullptr)` - Load and compile shaders from files
+  - `vertex_shader_file` - Path to vertex shader file
+  - `fragment_shader_file` - Path to fragment shader file
+  - `geometry_shader_file` - Optional path to geometry shader file
 
 > [!NOTE]
 > Shaders must follow the uniform and attribute naming conventions documented in the [Shader Requirements](#shader-requirements) section.

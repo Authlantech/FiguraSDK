@@ -18,7 +18,7 @@ Shader::~Shader()
 	glDeleteProgram(program);
 }
 
-void Shader::LoadFromFile(
+void Shader::Load(
 	const char* vertex_shader_path, 
 	const char* fragment_shader_path, 
 	const char* geometry_shader_path

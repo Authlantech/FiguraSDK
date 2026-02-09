@@ -157,21 +157,6 @@ void GraphicsEngine::ClearRenderQueue()
 	std::swap(render_queue, empty);
 }
 
-std::shared_ptr<Model> GraphicsEngine::LoadModelAsync(std::string file)
-{
-	std::shared_ptr<Model> new_model = std::make_shared<Model>();
-	new_model->is_loaded = std::async(std::launch::async, &Model::LoadModelData, file);
-	return new_model;
-}
-
-std::shared_ptr<Model> GraphicsEngine::LoadModel(std::string file)
-{
-	std::shared_ptr<Model> new_model = std::make_shared<Model>();
-	model_data dat = Model::LoadModelData(file);
-	new_model->LoadFromData(dat);
-	return new_model;
-}
-
 void GraphicsEngine::Render()
 {
 	while (!render_queue.empty()) {
@@ -180,18 +165,6 @@ void GraphicsEngine::Render()
 
 		if (!item.model) {
 			continue;
-		}
-
-		// Check if model has pending data to load from async operation
-		if (item.model->is_loaded.valid()) {
-			// Check if the future is ready without blocking
-			auto status = item.model->is_loaded.wait_for(std::chrono::seconds(0));
-			if (status == std::future_status::ready) {
-				// Load the model data on the main thread (OpenGL context)
-				model_data data = item.model->is_loaded.get();
-				item.model->LoadFromData(data);
-				// Future is now invalid (reset) after get(), preventing multiple loads
-			}
 		}
 
 		// Determine which shader to use
@@ -214,8 +187,8 @@ void GraphicsEngine::Render()
 		shader->uniformmat4f("viewMatrix", default_camera->get_viewMatrix());
 
 		// Set model uniforms
-		shader->uniformmat4f("modelMatrix", item.model->get_modelMatrix());
-		shader->uniformmat4f("normalMatrix", item.model->get_normalMatrix());
+		shader->uniformmat4f("modelMatrix", item.model->get_model_matrix());
+		shader->uniformmat4f("normalMatrix", item.model->get_normal_matrix());
 
 		// Render the model
 		item.model->Render();

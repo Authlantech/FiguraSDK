@@ -19,19 +19,19 @@ int main()
 
 	// Create a default shader
 	auto shader = std::make_shared<fgr::Shader>();
-	shader->LoadFromFile("../../shaders/default/default.vert", "../../shaders/default/default.frag");
+	shader->Load("../../shaders/default/default.vert", "../../shaders/default/default.frag");
 	engine.ConfigureDefaultShader(shader);
 
 	// Create a default perspective camera
-	auto camera = std::make_shared<fgr::Camera>();
-	camera->configure_perspective(60.f, 800.f / 600.f, 0.1f, 100.f);
-	camera->set_position(glm::vec3(0.f, 2.f, 10.f));
-	camera->face(glm::vec3(0.f, 0.f, 0.f));
+	fgr::PerspectiveAttribs attribs = { 60.f, 800.f / 600.f, 0.1f, 100.f };
+	auto camera = std::make_shared<fgr::PerspectiveCamera>(attribs);
+	camera->set_position({ 0,0,5 });
 	engine.ConfigureCamera(camera);
 
 	// Load a model
-	auto model = engine.LoadModelAsync("../assets/Meshy_AI_Fortress_Cannon_Cart_0206220959_texture.obj");
-	model->set_position(glm::vec3(0.f, 0.f, 0.f));
+	auto model = std::make_shared<fgr::Model>();
+	model->LoadAsync("../assets/Meshy_AI_Fortress_Cannon_Cart_0206220959_texture.obj");
+	model->set_position({ 0.f, 0.f, -5.f });
 
 	// Main render loop
 	while (engine.IsWindowOpen())
